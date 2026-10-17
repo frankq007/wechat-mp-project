@@ -13,69 +13,14 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 | ② 文章插图 | 正文配图（数据图/示意图/流程说明等） | 自身画图能力（cover-artist 子 agent） |
 | ③ 图片消息插图 | newspic（微信图片消息）用图 | 自身画图能力（cover-artist 子 agent） |
 
-- 封面：**必须走 xiaohu cover skill**（唯一生图通道），模型由 `cover/config.json` 指定。
+- 封面：**必须走 xiaohu cover skill**（唯一生图通道），模型使用由本子 agent的模型。
 - 插图：cover-artist 子 agent 自身的画图能力直接绘制，风格参照下方风格基准。
 - 产出统一落到项目内 `images/` 下，供 content-manager 排版/发布引用。
 
 ---
 
-## 职能①：封面图（走 xiaohu Cover skill，支持两种模式）
-
-### 模式 A：API 生图（config 指定模型，推荐）
-
-```bash
-python3 skill/xiaohu-wechat-format/scripts/generate.py \
-  --config skill/xiaohu-wechat-format/cover/config.json \
-  --prompt-file <prompt.md> \
-  --out <输出.png>
-```
-
-- `--config` 指向项目内 `cover/config.json`；**模型/网关/密钥全部由该 config 指定**（`settings.base_url` / `settings.model` / `secrets.api_key`），换模型只改 config，**绝不硬编码在脚本或提示词里**。
-- `aspect_ratio` 从 `prompt.md` 的 YAML 头部读取（三尺寸分别用 16:9 / 21:9 / 1:1，见下表）。
-- `--config` 缺省时 `generate.py` 会回退 `config.example.json`；但**正式产出前必须确认 config.json 已配置**（base_url/model/api_key 非占位），否则如实告知用户"封面生图未配置"，不静默换方式。
-- 凭据不入库：`cover/config.json` 已在 skill 的 `.gitignore` 忽略。
-
-### 模式 B：调用 cover-artist 子 agent 出图（无需任何 API 配置）
-
-若 `cover/config.json` 未配置、或用户指定：**由本子 agent（cover-artist，自带画图能力）直接出图**，**不依赖 config、不依赖 API key**：
-
-- 按 `images/style-ref.png` 风格基准 + 下方「三尺寸与构图」+「内容规则」，用自身画图能力产出三张 PNG。
-- 产出后 read 目检（标题/关键词高亮/吉祥物/四色框/水印/安全带/文字不贴边），不合格重画。
-- 示范产物：`images/covers/hn-ai-top5-*.png`（本 agent 之前出过的一套）。
-- 产出后 read 目检（标题/高亮/水印/安全带），不合格重画。
-
-**选择逻辑**：`cover/config.json` 已配好 → 模式 A；未配置或用户要求 → 模式 B（本子 agent 直接出图）。回报时必须注明所用模式与模型名（模式 B 即 cover-artist 自身）。
-
-### 三尺寸与构图
-
-微信封面首图是 **2.35:1**，直接裁切会切掉顶部标题条和底部标语。**不做 naive 裁切**，按用途单独出图：
-
-| 产物 | 尺寸 | prompt 的 aspect_ratio | 用途 | 构图 |
-|---|---|---|---|---|
-| `<slug>-master.png` | 1080×608 | 16:9 | 文内头图 / 存档 | 完整三层版式（同参照图） |
-| `<slug>-cover.png` | 900×383 | 21:9（最接近 2.35:1） | **微信封面首图** | **重排**：标题条居左上 + 吉祥物居中 + 左右两个流程框；去掉上/下框与底部标语（标语关键词并入标题） |
-| `<slug>-square.png` | 500×500 | 1:1 | 分享卡片 / 次图 | 吉祥物居中 + 标题条置顶 + 两个流程框置底 |
-
-- prompt 中**显式写明**目标尺寸与"中央垂直 60% 安全带"要求（cover 的 y≈77–306/383，square 的 y≈100–400/500），避免微信二次裁切切到字。
-- 出图后**必须用 read 工具逐张目检**：标题完整、关键词高亮、吉祥物与流程框齐全、水印为「公众号·小河」且未被遮挡、文字不贴边（左右各留 ≥24px）。不合格单独重出。
-
-### prompt.md 模板（每篇一份，归档到 `images/covers/<slug>.prompt.md`）
-
-```md
----
-aspect_ratio: "16:9"        # 三尺寸分别 16:9 / 21:9 / 1:1
-image_size: "2K"
----
-
-请严格按《images/style-ref.png》的视觉风格生成公众号封面：
-
-[把下方"风格基准"整段复制进来，替换"内容主题"部分]
-内容主题：{一句话主题}
-目标尺寸：{如 1080×608}
-关键文字：{标题/框标题/标语，注明哪个词用珊瑚红 #EE6E5B 高亮}
-安全区：所有文字与关键图形落在画面中央垂直 60% 以内
-水印：右下角「公众号·小河」
-```
+## 职能①：封面图（走 xiaohu Cover skill）
+走模式B，调用 cover-artist 子 agent 出图（无需任何 API 配置）。
 
 ---
 
@@ -139,7 +84,7 @@ image_size: "2K"
 | 点缀黄 | `#F5C84C` |
 
 ### 水印
-右下角 `公众号·小河`（参照图水印为他人账号，**必须替换**为本号）——封面与插图通用。
+右下角 `公众号·和旋代码`（参照图水印为他人账号，**必须替换**为本号）——封面与插图通用。
 
 ## 内容规则（三职能通用）
 - **标题/主文案**：直接用 content-manager 定下的文章标题；风格遵循"具体、有画面、动词驱动"（见 content-manager 标题规则）。
