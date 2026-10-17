@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 scripts/release.py:*)",
+      "Bash(python3 scripts/newspic.py:*)",
+      "Bash(python3 sync/cli.py:*)",
+      "Bash(python3 /mnt/d/code/wx/xiaohu-wechat-format/scripts/publish.py:*)",
+      "Bash(python3 /mnt/d/code/wx/xiaohu-wechat-format/scripts/format.py:*)",
+      "Read(//mnt/d/code/wx/xiaohu-wechat-format/**)",
+      "Read(//mnt/d/code/wechat-mp-project/**)",
+      "Write(//mnt/d/code/wechat-mp-project/articles/**)",
+      "Edit(//mnt/d/code/wechat-mp-project/articles/**)",
+      "Write(//mnt/d/code/wechat-mp-project/images/**)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./**/*.secret.json)",
+      "Bash(curl *freepublish/submit*)",
+      "Bash(curl *message/mass*)"
+    ]
+  }
+}

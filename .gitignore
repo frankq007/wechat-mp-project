@@ -1,0 +1,17 @@
+# 数据库
+data/*.db
+data/*.db-journal
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 封面/图片产物（如不需要纳入版本管理可取消注释）
+# images/covers/*.png
+
+# 临时文件
+*.tmp
+.DS_Store
+
+# 凭据（若本地另存敏感配置则不提交）
+*.secret.json
