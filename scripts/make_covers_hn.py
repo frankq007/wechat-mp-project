@@ -34,7 +34,7 @@ _FC = {}
 # 标题与文案
 TITLE_1, TITLE_2 = "Claude", " 半小时破解 26 年密码学悬案"
 SLOGAN = "给 AI 一双能验证的眼睛"
-WATER  = "公众号·小河"
+WATER  = "公众号·和弦代码"
 SUBS = {  # 位置: (小标题, 框色, 内容类型)
     "top":    ("自己找线索", BLUE,   "code"),
     "right":  ("自己跑复现", GREEN,  "terminal"),
