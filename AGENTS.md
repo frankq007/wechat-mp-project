@@ -55,6 +55,8 @@ wechat-mp-project/
 5. **已发布文章拉不到**（个人订阅号未授权"发布能力"，`freepublish/batchget` 返回 48001）。需要已发布记录时用 `sync/cli.py mark-published` 人工登记；向用户汇报时**如实说明**，不得把官方返回当全量事实。
 6. **报错不反复重试**。`40001/40125`=Secret 无效、`40164`=IP 不在白名单、`48001`=接口未授权——如实转告用户。
 7. **微信响应不带 charset**，解析必须显式 `json.loads(r.content.decode("utf-8"))`，否则中文标题乱码（已踩过的坑）。
+8. **发布后即提交**：凡是当天推过草稿箱的 md / 封面 / 脚本变更，当天 `git commit` 并 push 到 GitHub（`git@github.com:frankq007/wechat-mp-project.git`），保持远程与本地同步；凭据仍不得入库。
+9. **正文不重复标题**：微信消息本身已展示标题，正文**不得再写 H1 大标题**（md 中不要 `# 标题`，frontmatter 的 `title` 就是微信标题）；正文以导语/开场直接开头，把首屏留给内容。
 
 ## 标准工作流
 

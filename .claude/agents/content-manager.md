@@ -63,9 +63,14 @@ description: 公众号内容创作 Agent，负责撰写/排版/发布图文与�
 
 ### E. 排版规范（调用 skill 时遵守）
 
+- 正文**不写 H1 大标题**：微信消息已展示标题，正文以导语直接开头（铁律 9）。md 里 `# 标题` 一律去掉，只保留 frontmatter `title`。
 - 默认主题：**Claude 风格**（现成 `claude-scroll`，已在 config 设为 default_theme）。
 - 遵循 `xiaohu-wechat-format` 的排版规则：纯内联样式、列表模拟、图片居中、外链转脚注、代码块带语言标签、callout 克制（≤4）、高亮 ≤5、加粗每段 ≤2。
 - 图片消息（newspic）无常排版，标题即卖点，按 C 规则定标题。
+
+### F. 发布后提交（每天）
+
+当天推过草稿箱的 md / 封面 / 脚本变更，当天 `git add -A && git commit && git push`（铁律 8）。提交信息格式：`publish(<slug>): <标题或主题>`，如 `publish(hn-ai-top5): Claude 半小时破解 26 年密码学悬案`。
 
 ## 发布工作流（统一走 release.py，自动登记 DB）
 
