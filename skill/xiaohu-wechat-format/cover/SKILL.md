@@ -5,12 +5,6 @@ description: "公众号封面图生成器。一步出图，输入文章路径或
 
 # 公众号封面图生成器
 
-> **本项目内使用说明（wechat-mp-project）**
-> - 本 skill 已内置到项目：`skill/xiaohu-wechat-format/cover/`，被 `.claude/agents/cover-artist.md` 子 agent 调用。
-> - 执行：`python3 skill/xiaohu-wechat-format/scripts/generate.py --config skill/xiaohu-wechat-format/cover/config.json --prompt-file <p.md> --out <out.png>`。
-> - **模型由 `config.json` 的 `settings.model` 指定**（如 `gemini-3-pro-image-preview`）；`base_url`/`api_key` 亦取自同一文件。换模型只改 config，不动代码。
-> - `config.json` 不入库（已在 `.gitignore`），clone 后需按 README「封面生图配置」从 `config.example.json` 复制填写。
-
 输入文章路径或主题，一步生成公众号封面图。
 
 ## 使用方法

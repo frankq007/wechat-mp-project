@@ -42,50 +42,31 @@ wechat-mp-project/
 
 ## 前置配置
 
-**clone 后首次初始化（三件事）：**
+**clone 后首次初始化（两件事）：**
 
 ```bash
 # 1. 排版/发布 skill 的 config（含主题/作者/图片搜索路径）
 cp skill/xiaohu-wechat-format/config.example.json \
    skill/xiaohu-wechat-format/config.json
 
-# 2. 封面生图 skill 的 config（模型/网关/密钥都在这里）
-cp skill/xiaohu-wechat-format/cover/config.example.json \
-   skill/xiaohu-wechat-format/cover/config.json
-
-# 3. 微信凭据走环境变量（不落明文）
+# 2. 微信凭据走环境变量（不落明文）
 export WECHAT_APP_ID="wx..."
 export WECHAT_APP_SECRET="..."   # 32 位
 ```
 
-三个 config.json 均已在 `.gitignore` 中（不入库），clone 后需自行从 example 复制填写。
+config.json 已在 `.gitignore` 中（不入库），clone 后需自行从 example 复制填写。封面由 cover-artist 子 agent 用自身模型绘制，无需额外生图配置。
 
 **排版发布 skill**：`skill/xiaohu-wechat-format/`（原外部 `/mnt/d/code/wx/xiaohu-wechat-format` 已废弃），脚本经项目内相对路径调用。`config.json` 已配：`wechat.author = 小河`、`settings.default_theme = claude-scroll`；凭据字段写占位 `$WECHAT_APP_ID` / `$WECHAT_APP_SECRET`，由 `publish.py` / `sync/api.py` / `newspic.py` 统一解析（**环境变量优先**，其次展开 `$VAR`）。
 
 **IP 白名单**：公众号后台需把当前出口 IP 加入白名单，否则 token 报 `40164`。
 
-## 封面生图（cover-artist 子 agent 使用）
+## 封面生成（cover-artist 子 agent）
 
-封面由 `cover-artist` 子 agent 调**项目内 xiaohu 的 cover skill** 出图：
+封面由 `cover-artist` 子 agent **用自身模型能力绘制**（不依赖外部生图 API / skill 配置）：
 
-```bash
-python3 skill/xiaohu-wechat-format/scripts/generate.py \
-  --config skill/xiaohu-wechat-format/cover/config.json \
-  --prompt-file <prompt.md> \
-  --out <输出.png>
-```
-
-**模型由 cover/config.json 指定**（换模型只改 config，不动代码）：
-
-| 键 | 说明 | 示例 |
-|---|---|---|
-| `settings.base_url` | 生图 API 网关（Gemini 兼容 REST） | `https://YOUR_PROVIDER_BASEURL/v1` |
-| `settings.model` | 生图模型 | `gemini-3-pro-image-preview` |
-| `secrets.api_key` | API 密钥 | 必填 |
-
-- 出三尺寸（master 1080×608 / cover 900×383 2.35:1 / square 500×500），按 `style-ref.png` 风格，水印「公众号·小河」。
-- 出图后 cover-artist 会逐张目检尺寸/构图/安全带/水印；不合格重出。
-- `cover/config.json` 不入库；未配置时 cover-artist 会如实报告，不降级。
+- 参照 `images/style-ref.png` 与 `cover-artist.md` 中的风格基准、三尺寸规范（master 1080×608 / cover 900×383 2.35:1 / square 500×500）。
+- 水印「公众号·小河」；文字与关键图形落在中央垂直 60% 安全带内。
+- 已交付样板：`scripts/make_covers_hn.py`（PIL 手绘方案，见 `images/covers/hn-ai-top5-*.png`），可复用/套新稿。
 
 ## 发布流程（统一走 release.py，自动登记 DB）
 
@@ -147,4 +128,4 @@ python3 sync/cli.py db --sql "SELECT id,title,status FROM articles"
 |---|---|
 | `content-manager` | 选题/写作/排版/发布编排，含写作规则（搜索+传播优化） |
 | `data-sync` | 草稿箱/已发布 ↔ 本地 DB 双向同步、查询、差异/漂移核对 |
-| `cover-artist` | 调项目内 xiaohu cover skill 出封面（三尺寸），模型由 cover/config.json 指定 |
+| `cover-artist` | 用自身模型（如 opus 5.5）按 style-ref 风格画封面（三尺寸），不依赖外部生图 API |

@@ -19,7 +19,7 @@
 | Agent | 定义文件 | 负责 | 绝不碰 |
 |---|---|---|---|
 | `content-manager` | `.claude/agents/content-manager.md` | 选题、写 md、配标题/摘要、编排发布 | 数据库、生图 |
-| `cover-artist` | `.claude/agents/cover-artist.md` | 用项目内 `skill/xiaohu-wechat-format/cover/` 按 `images/style-ref.png` 出封面（三尺寸，模型由 config 指定） | 写作、排版、发布、同步 |
+| `cover-artist` | `.claude/agents/cover-artist.md` | 用自身模型按 `images/style-ref.png` 出封面（三尺寸） | 写作、排版、发布、同步 |
 | `data-sync` | `.claude/agents/data-sync.md` | 草稿箱/已发布 ↔ SQLite 同步、查询、差异核对 | 写作、排版、发布 |
 
 协作链：**content-manager 写稿 → cover-artist 出封面 → release.py 发布并自动登记 → data-sync 核对**。

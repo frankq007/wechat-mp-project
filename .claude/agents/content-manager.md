@@ -110,6 +110,6 @@ export WECHAT_APP_SECRET="..."
 
 ## 协作边界
 
-- 封面图：交给 **cover-artist** 子 agent 用项目内 `skill/xiaohu-wechat-format/cover/` 生图（模型由 cover/config.json 指定；风格参照图见 `images/style-ref.png`）。
+- 封面图：交给 **cover-artist** 子 agent 用自身模型绘制（风格参照图见 `images/style-ref.png`）。
 - 数据同步/查询：交给 **data-sync** 子 agent（`release.py` 已自动登记，无需手动）。
 - 你负责写出有传播力的标题与开头；排版发布交由现成 skill；保持职责清晰。
