@@ -57,11 +57,13 @@ wechat-mp-project/
 7. **微信响应不带 charset**，解析必须显式 `json.loads(r.content.decode("utf-8"))`，否则中文标题乱码（已踩过的坑）。
 8. **发布后即提交**：凡是当天推过草稿箱的 md / 封面 / 脚本变更，当天 `git commit` 并 push 到 GitHub（`git@github.com:frankq007/wechat-mp-project.git`），保持远程与本地同步；凭据仍不得入库。
 9. **正文不重复标题**：微信消息本身已展示标题，正文**不得再写 H1 大标题**（md 中不要 `# 标题`，frontmatter 的 `title` 就是微信标题）；正文以导语/开场直接开头，把首屏留给内容。
+10. **动笔先评审**：接到写作任务先出**大纲 + 3~5 个备选标题**（含推荐一条）交用户评审，**用户确认后才写正文**；未确认不进入成稿。
 
 ## 标准工作流
 
 ### 图文消息（主力）
 ```bash
+# 0. content-manager：先出大纲 + 3~5 备选标题交用户评审（未确认不写正文）
 # 1. content-manager：写稿（过写作规则检查项）→ articles/<slug>.md
 # 2. cover-artist：出三尺寸封面 → images/covers/<slug>-{master,cover,square}.png
 # 3. 发布 + 自动登记 DB
