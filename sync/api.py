@@ -14,44 +14,48 @@ from pathlib import Path
 
 import requests
 
+from scripts.cred import resolve_credential
+
 SKILL_DIR = Path(__file__).resolve().parent.parent / "skill" / "xiaohu-wechat-format"
 BASE = "https://api.weixin.qq.com/cgi-bin"
+
+
+REQUIRED_KEYS = ("settings.default_theme", "wechat.author", "image_search_paths")
 
 
 def load_config() -> dict:
     cfg_path = SKILL_DIR / "config.json"
     if not cfg_path.exists():
-        print(f"错误: 找不到现成 skill 的 config.json: {cfg_path}")
+        print(f"错误: 找不到 skill 的 config.json: {cfg_path}")
+        print("  clone 后请先: cp skill/xiaohu-wechat-format/config.example.json "
+              "skill/xiaohu-wechat-format/config.json")
         sys.exit(1)
-    return json.load(open(cfg_path, encoding="utf-8"))
-
-
-def resolve_credential(value, env_name: str) -> str:
-    """凭据解析：环境变量优先，其次展开 config.json 里的 $VAR 占位。
-
-    config.json 的 app_secret 写的是 "$WECHAT_APP_SECRET"（不落明文密钥），
-    真值取自环境变量。与 publish.py / newspic.py 共用同一套解析顺序。
-    """
-    env_val = os.environ.get(env_name, "").strip()
-    if env_val:
-        return env_val
-    if not value:
-        return ""
-    val = str(value).strip()
-    expanded = os.path.expandvars(val)
-    if expanded != val and not expanded.startswith("$"):
-        return expanded.strip()
-    return ""
+    cfg = json.load(open(cfg_path, encoding="utf-8"))
+    # L3 自检：关键字段存在性（缺少时提示而不是静默用默认值）
+    missing = []
+    for k in REQUIRED_KEYS:
+        cur = cfg
+        ok = True
+        for part in k.split("."):
+            if not isinstance(cur, dict) or part not in cur:
+                ok = False
+                break
+            cur = cur[part]
+        if not ok:
+            missing.append(k)
+    if missing:
+        print(f"警告: config.json 缺少关键字段（将使用脚本默认值）: {missing}")
+    return cfg
 
 
 def get_credentials() -> tuple[str, str]:
     """返回 (app_id, app_secret)；取不到则报错退出。"""
     wechat = load_config().get("wechat", {})
-    app_id = resolve_credential(wechat.get("app_id"), "WECHAT_APP_ID")
-    app_secret = resolve_credential(wechat.get("app_secret"), "WECHAT_APP_SECRET")
+    app_id, app_secret = resolve_credential(wechat.get("app_id"), "WECHAT_APP_ID"), \
+                         resolve_credential(wechat.get("app_secret"), "WECHAT_APP_SECRET")
     if not app_id or not app_secret:
         print("错误: 未取到微信凭据。请设置环境变量 WECHAT_APP_ID / WECHAT_APP_SECRET，"
-              "或在 xiaohu-wechat-format/config.json 的 wechat.app_secret 写 \"$WECHAT_APP_SECRET\"")
+              "或在 skill/xiaohu-wechat-format/config.json 的 wechat.app_secret 写 \"$WECHAT_APP_SECRET\"")
         sys.exit(1)
     return app_id, app_secret
 

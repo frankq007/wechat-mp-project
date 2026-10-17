@@ -422,20 +422,23 @@ def main():
 
     if total_images > 0:
         print(f"\n上传正文图片 ({local_count} 本地 + {external_count} 外部)...")
-        html, replaced, failed = replace_all_images(html, article_dir, token)
-        print(f"  上传完成: {replaced} 成功, {failed} 失败")
-        if failed > 0 and replaced == 0:
-            print("  错误: 所有图片上传失败，中止发布（不推空图草稿）")
-            sys.exit(1)
-        elif failed > 0:
-            print("  警告: 部分图片上传失败，文章中对应位置可能显示空白")
-            if args.yes:
-                print("  (--yes 已启用，自动继续)")
-            else:
-                resp = input("  继续发布？(y/N) ").strip().lower()
-                if resp != "y":
-                    print("  已中止")
-                    sys.exit(0)
+        if args.dry_run:
+            print(f"  [dry-run] 跳过上传（仅打印：共 {total_images} 张正文图）")
+        else:
+            html, replaced, failed = replace_all_images(html, article_dir, token)
+            print(f"  上传完成: {replaced} 成功, {failed} 失败")
+            if failed > 0 and replaced == 0:
+                print("  错误: 所有图片上传失败，中止发布（不推空图草稿）")
+                sys.exit(1)
+            elif failed > 0:
+                print("  警告: 部分图片上传失败，文章中对应位置可能显示空白")
+                if args.yes:
+                    print("  (--yes 已启用，自动继续)")
+                else:
+                    resp = input("  继续发布？(y/N) ").strip().lower()
+                    if resp != "y":
+                        print("  已中止")
+                        sys.exit(0)
     else:
         print("\n无正文图片需上传")
 
@@ -443,17 +446,21 @@ def main():
     cover_path = find_cover_image(article_dir, args.cover)
     if cover_path:
         print(f"\n上传封面图: {cover_path.name}")
-        thumb_media_id = upload_thumb_image(token, str(cover_path))
-        if thumb_media_id:
-            print(f"  ✓ media_id: {thumb_media_id[:20]}...")
-        else:
-            print("  ✗ 封面上传失败")
+        if args.dry_run:
+            print(f"  [dry-run] 跳过上传（封面路径: {cover_path}）")
             thumb_media_id = None
+        else:
+            thumb_media_id = upload_thumb_image(token, str(cover_path))
+            if thumb_media_id:
+                print(f"  ✓ media_id: {thumb_media_id[:20]}...")
+            else:
+                print("  ✗ 封面上传失败")
+                thumb_media_id = None
     else:
         print("\n未找到封面图")
         thumb_media_id = None
 
-    if not thumb_media_id:
+    if not thumb_media_id and not args.dry_run:
         print("\n错误: 微信要求必须有封面图。")
         print("  请用 --cover 指定封面图路径，或在 images/ 目录放一张图片")
         sys.exit(1)
@@ -462,7 +469,8 @@ def main():
     if args.dry_run:
         print(f"\n[dry-run] 跳过推送草稿箱")
         print(f"  标题: {title}")
-        print(f"  封面 media_id: {thumb_media_id}")
+        if thumb_media_id:
+            print(f"  封面 media_id: {thumb_media_id}")
         print(f"  HTML 长度: {len(html)} 字符")
         return
 

@@ -45,7 +45,7 @@ description: "公众号封面图生成器。一步出图，输入文章路径或
 走 `generate.py`，模型/网关/密钥由 `cover/config.json` 指定：
 
 ```bash
-python3 <本仓库>/scripts/generate.py \
+python3 <本项目>/skill/xiaohu-wechat-format/scripts/generate.py \
   --config <本技能目录>/cover/config.json \
   --prompt-file <目标目录>/prompt.md \
   --out <目标目录>/cover.png
@@ -134,13 +134,13 @@ image_size: "2K"
 
 调用生图脚本，**必须传 `--config` 指向本技能自己的配置**：
 ```bash
-python3 <本仓库>/scripts/generate.py \
+python3 <本项目>/skill/xiaohu-wechat-format/scripts/generate.py \
   --config <本技能目录>/cover/config.json \
   --prompt-file <目标目录>/prompt.md \
   --out <目标目录>/cover.jpg
 ```
 
-> `<本仓库>` 和 `<本技能目录>` 请替换为你本地实际安装路径。如果你通过 `claude install` 安装，路径一般是 `<本项目>/skill/xiaohu-wechat-format/`。
+> 本项目内实际路径：`<本项目>/skill/xiaohu-wechat-format/`。
 
 **模式 B（调用 cover-artist 子 agent 出图）**：代理 cover-artist 子 agent（自带画图能力）直接绘图，无需上述 config 命令，产物按同样的路径约定与风格基准存放。
 

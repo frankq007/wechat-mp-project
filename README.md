@@ -40,7 +40,11 @@ wechat-mp-project/
 - **正文**存 md 文件（`articles/`），是唯一真源。
 - **SQLite** 只存文章元数据 + 微信侧镜像 + 映射，**不存正文**。
 
+> **已知限制（remote_hash）**：`article_sync.remote_hash` 目前始终为 `None`（`link_article` 不填、`sync pull` 不回填远端哈希），因此漂移检测只能覆盖**本地侧**（md 改了会报「本地版本漂移」），无法探测「微信侧被人工改过」。这是功能局限而非 bug，不影响日常使用；如需探测微信侧变更，需在 pull 时下载正文比对（代价较大，暂未实现）。
+
 ## 前置配置
+
+**内置 skill 来源**：`skill/xiaohu-wechat-format/` 自外部仓库 `github.com/xiaohuailabs/xiaohu-wechat-format` 复制（vendor commit：`dbddf0f`，主题库 85 款）。已放弃自动同步；若需升级，先比对上游 commit，再手动同步 scripts/ + themes/ + SKILL.md（保留本项目对 cover/SKILL.md、config.example.json、.gitignore 的定制）。
 
 **clone 后首次初始化（三件事）：**
 

@@ -43,5 +43,6 @@
       "settings.model",
       "secrets.api_key"
     ]
-  }
+  },
+  "enabled": false
 }

@@ -102,6 +102,18 @@ def cmd_mark_published(args):
         article_type=args.type, title=args.title, wx_status="已发布",
         message_id=args.message_id,
         published_at=args.published_at or db.now())
+    # 若提供 --src：关联本地稿并建映射，让 report 不再误报
+    if args.src:
+        src_path = Path(args.src).resolve()
+        if src_path.exists():
+            m = meta.extract_metadata(src_path)
+            art_id = db.upsert_article(conn, **m)
+            db.link_article(conn, art_id, args.media_id, remote_hash="published")
+            conn.execute("UPDATE articles SET status='已发布' WHERE id=?", (art_id,))
+            conn.commit()
+            print(f"  ✓ 已关联本地稿: {m['title']} (article_id={art_id})")
+        else:
+            print(f"  ⚠ --src 文件不存在，跳过关联: {src_path}")
     print(f"✓ 已登记为已发布: {args.title} (media_id={args.media_id[:16]}...)")
 
 
@@ -144,6 +156,7 @@ def make_parser():
     mp.add_argument("--title", required=True)
     mp.add_argument("--type", choices=["news", "newspic"], default="news")
     mp.add_argument("--message-id")
+    mp.add_argument("--src", help="关联的本地 md 源稿路径（存在则写入 article_sync 映射）")
     mp.add_argument("--published-at", help="发布时间，默认当前")
 
     dbp = sub.add_parser("db")

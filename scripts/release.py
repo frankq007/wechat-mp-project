@@ -33,7 +33,8 @@ XIAOHU_PUBLISH = PROJECT / "skill" / "xiaohu-wechat-format" / "scripts" / "publi
 NEWSPIC = PROJECT / "scripts" / "newspic.py"
 
 # publish.py 输出 "草稿 media_id: xxx"；newspic.py 输出 "草稿 media_id = xxx"
-MEDIA_ID_RE = re.compile(r"草稿 media_id\s*[:=]\s*(\S+)")
+# 兼容 publish.py 的 "草稿 media_id: xxx" / newspic.py 的 "草稿 media_id = xxx"
+MEDIA_ID_RE = re.compile(r"(?:草稿\s+)?media_id\s*[:=]\s*([A-Za-z0-9_-]{10,})")
 
 
 def run(cmd: list[str]) -> str:
@@ -120,8 +121,10 @@ def main():
             return
         media_id = extract_media_id(out)
         if not media_id:
-            print("⚠ 未能从输出解析 media_id，跳过本地登记（可稍后 sync/cli.py pull 补齐）")
-            return
+            print("✗ 发布似乎成功但未能从输出解析 media_id，跳过本地登记。")
+            print("  请检查上方输出是否含有 media_id/草稿 media_id；如确实发布成功，")
+            print("  可稍后执行 sync/cli.py pull 补齐映射，或用 sync/cli.py db 查询。")
+            sys.exit(3)
         title = args.title or _md_title(md)
         register(md, media_id, title, "news")
 
@@ -148,10 +151,13 @@ def main():
 
 
 def _md_title(md: Path) -> str:
-    import re as _re
-    text = md.read_text(encoding="utf-8")
-    m = _re.search(r"^#\s+(.+)$", text, _re.M)
-    return m.group(1).strip() if m else md.stem
+    """从 md 提取标题：优先 frontmatter 的 title（铁律 9：正文不再写 H1）。"""
+    sys.path.insert(0, str(PROJECT))
+    from sync import meta
+    try:
+        return meta.extract_metadata(md)["title"]
+    except Exception:
+        return md.stem
 
 
 if __name__ == "__main__":

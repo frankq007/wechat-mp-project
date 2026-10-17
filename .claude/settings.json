@@ -6,11 +6,11 @@
       "Bash(python3 sync/cli.py:*)",
       "Bash(python3 /mnt/d/code/wechat-mp-project/skill/xiaohu-wechat-format/scripts/publish.py:*)",
       "Bash(python3 /mnt/d/code/wechat-mp-project/skill/xiaohu-wechat-format/scripts/format.py:*)",
-      "Read(//mnt/d/code/wechat-mp-project/skill/xiaohu-wechat-format/**)",
-      "Read(//mnt/d/code/wechat-mp-project/**)",
-      "Write(//mnt/d/code/wechat-mp-project/articles/**)",
-      "Edit(//mnt/d/code/wechat-mp-project/articles/**)",
-      "Write(//mnt/d/code/wechat-mp-project/images/**)"
+      "Read(/mnt/d/code/wechat-mp-project/skill/xiaohu-wechat-format/**)",
+      "Read(/mnt/d/code/wechat-mp-project/**)",
+      "Write(/mnt/d/code/wechat-mp-project/articles/**)",
+      "Edit(/mnt/d/code/wechat-mp-project/articles/**)",
+      "Write(/mnt/d/code/wechat-mp-project/images/**)"
     ],
     "deny": [
       "Read(./.env)",

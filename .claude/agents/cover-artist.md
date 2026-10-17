@@ -13,7 +13,7 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 | ② 文章插图 | 正文配图（数据图/示意图/流程说明等） | 自身画图能力（cover-artist 子 agent） |
 | ③ 图片消息插图 | newspic（微信图片消息）用图 | 自身画图能力（cover-artist 子 agent） |
 
-- 封面：**必须走 xiaohu cover skill**（唯一生图通道），模型使用由本子 agent的模型。
+- 封面：**默认模式 B**（本子 agent 画图能力 + xiaohu cover skill 提示词），模式 A（外部 API 生图）仅备选；详职①。
 - 插图：cover-artist 子 agent 自身的画图能力直接绘制，风格参照下方风格基准。
 - 产出统一落到项目内 `images/` 下，供 content-manager 排版/发布引用。
 

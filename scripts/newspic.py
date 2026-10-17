@@ -29,27 +29,21 @@ from pathlib import Path
 import requests
 
 # 复用本项目内 skill 的 config.json（author 等）；凭据从环境变量解析
-PROJECT = Path(__file__).resolve().parent.parent
-SKILL_DIR = PROJECT / "skill" / "xiaohu-wechat-format"
-CONFIG = json.load(open(SKILL_DIR / "config.json", encoding="utf-8"))
+def _load_skill_config():
+    from pathlib import Path
+    project = Path(__file__).resolve().parent.parent
+    cfg_path = project / "skill" / "xiaohu-wechat-format" / "config.json"
+    return json.load(open(cfg_path, encoding="utf-8"))
+
+
+CONFIG = _load_skill_config()
 WECHAT = CONFIG.get("wechat", {})
 
 AUTHOR = WECHAT.get("author", "小河")
 BASE = "https://api.weixin.qq.com/cgi-bin"
 
-
-def resolve_credential(value, env_name: str) -> str:
-    """环境变量优先，其次展开 config.json 里的 $VAR 占位（与 sync/api.py 一致）。"""
-    env_val = os.environ.get(env_name, "").strip()
-    if env_val:
-        return env_val
-    if not value:
-        return ""
-    val = str(value).strip()
-    expanded = os.path.expandvars(val)
-    if expanded != val and not expanded.startswith("$"):
-        return expanded.strip()
-    return ""
+# 凭据统一解析（环境变量优先；见 scripts/cred.py）
+from scripts.cred import resolve_credential
 
 
 def post_json(url, payload):
@@ -156,14 +150,16 @@ def main():
     tmp = to_rgb_copy(img)
     print(f"  ✓ {img.name} -> {tmp.name}")
 
+    if args.dry_run:
+        print(f"\n[dry-run] 跳过上传永久素材与创建草稿")
+        print(f"  图片: {img}")
+        print(f"  标题: {title}")
+        os.remove(tmp)
+        return
+
     print(f"=== 3. 上传永久素材 ===")
     media_id = upload_permanent_image(token, tmp)
     print(f"  ✓ media_id = {media_id[:20]}...")
-
-    if args.dry_run:
-        print(f"\n[dry-run] 跳过推送")
-        os.remove(tmp)
-        return
 
     print(f"=== 4. 创建 newspic 草稿 ===")
     draft_id = create_newspic_draft(token, title, media_id)
