@@ -10,11 +10,11 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 | 职能 | 内容 | 生产方式 |
 |---|---|---|
 | ① 封面图 | 文章封面三尺寸（master/cover/square） | **xiaohu cover skill**（`skill/xiaohu-wechat-format/`） |
-| ② 文章插图 | 正文配图（数据图/示意图/流程说明等） | 自身模型能力（PIL 脚本等） |
-| ③ 图片消息插图 | newspic（微信图片消息）用图 | 自身模型能力（PIL 脚本等） |
+| ② 文章插图 | 正文配图（数据图/示意图/流程说明等） | 自身画图能力（cover-artist 子 agent） |
+| ③ 图片消息插图 | newspic（微信图片消息）用图 | 自身画图能力（cover-artist 子 agent） |
 
 - 封面：**必须走 xiaohu cover skill**（唯一生图通道），模型由 `cover/config.json` 指定。
-- 插图：自身模型能力（如 paseo「画家」profile 的 claude-opus-5-5）直接绘制或写脚本产出，风格参照下方风格基准。
+- 插图：cover-artist 子 agent 自身的画图能力直接绘制，风格参照下方风格基准。
 - 产出统一落到项目内 `images/` 下，供 content-manager 排版/发布引用。
 
 ---
@@ -35,15 +35,16 @@ python3 skill/xiaohu-wechat-format/scripts/generate.py \
 - `--config` 缺省时 `generate.py` 会回退 `config.example.json`；但**正式产出前必须确认 config.json 已配置**（base_url/model/api_key 非占位），否则如实告知用户"封面生图未配置"，不静默换方式。
 - 凭据不入库：`cover/config.json` 已在 skill 的 `.gitignore` 忽略。
 
-### 模式 B：自身模型绘图（无需任何 API 配置）
+### 模式 B：调用 cover-artist 子 agent 出图（无需任何 API 配置）
 
-若 `cover/config.json` 未配置、或用户指定走自身模型：用自身模型能力直接绘制（PIL 脚本等），**不依赖 config**：
+若 `cover/config.json` 未配置、或用户指定：**由本子 agent（cover-artist，自带画图能力）直接出图**，**不依赖 config、不依赖 API key**：
 
-- 参照 `images/style-ref.png` 风格基准 + 下方「三尺寸与构图」，用写脚本（如 `scripts/make_covers_hn.py` 样板）或直接绘图产出三张 PNG。
-- 样板 `scripts/make_covers_hn.py` 已交付（PIL 三尺寸 + 安全带自检，见 `images/covers/hn-ai-top5-*.png`），可复用几何布局/配色常量，或改参数套新稿。
+- 按 `images/style-ref.png` 风格基准 + 下方「三尺寸与构图」+「内容规则」，用自身画图能力产出三张 PNG。
+- 产出后 read 目检（标题/关键词高亮/吉祥物/四色框/水印/安全带/文字不贴边），不合格重画。
+- 示范产物：`images/covers/hn-ai-top5-*.png`（本 agent 之前出过的一套）。
 - 产出后 read 目检（标题/高亮/水印/安全带），不合格重画。
 
-**选择逻辑**：`cover/config.json` 已配好 → 模式 A；未配置或用户要求 → 模式 B。回报时必须注明所用模式与模型名。
+**选择逻辑**：`cover/config.json` 已配好 → 模式 A；未配置或用户要求 → 模式 B（本子 agent 直接出图）。回报时必须注明所用模式与模型名（模式 B 即 cover-artist 自身）。
 
 ### 三尺寸与构图
 
@@ -78,9 +79,9 @@ image_size: "2K"
 
 ---
 
-## 职能②：文章正文插图（自身模型）
+## 职能②：文章正文插图（cover-artist 子 agent 画图）
 
-正文配图由自身模型能力直接绘制（PIL 脚本 / 自绘），要点：
+正文配图由本子 agent 画图能力直接产出（数据图/示意图/流程说明等），要点：
 
 - **类型**：数据条形图、示意图、流程说明、对比表等，能"一图说清"的优先做图，避免纯文字长段。
 - **尺寸**：建议宽度 **1080px**，高度自适应（长宽比 1:1 ~ 3:2 为宜），PNG。
@@ -89,7 +90,7 @@ image_size: "2K"
 - **插入文章**：md 里用 wikilink `![[<slug>-<n>.png]]`（需在 `skill/xiaohu-wechat-format/config.json` 的 `image_search_paths` 已含 `./images`——项目已默认配置），图说用紧随其后的斜体行。
 - 范例：`images/inline/hn-heat.png`、`mercor-coverage.png`（hn-ai-top5 一文）。
 
-## 职能③：微信图片消息（newspic）风格插图（自身模型）
+## 职能③：微信图片消息（newspic）风格插图（cover-artist 子 agent 画图）
 
 为图片消息（`release.py newspic`）产出单张主图，要点：
 
@@ -147,8 +148,8 @@ image_size: "2K"
 - 主题色可随文章内容微调，但**必须保留版式骨架与四色体系**。
 
 ### 工程参考
-- 封面样板：`scripts/make_covers_hn.py`（PIL 三尺寸 + 安全带自检，见 `images/covers/hn-ai-top5-*.png`）可复用几何布局/配色常量。注意：**封面正式出图走 xiaohu cover skill**，PIL 脚本仅作布局参考/自检工具。
-- 插图样板：`/tmp/make_charts.py` 生成 `images/inline/hn-heat.png`、`mercor-coverage.png` 的手绘数据图方案。
+- 封面示范：`images/covers/hn-ai-top5-*.png`（模式 B 由本子 agent 出的一套样板）。
+- 插图示范：`images/inline/hn-heat.png`、`mercor-coverage.png`。
 
 ## 产出与回报
 - 封面：`images/covers/<slug>-{master,cover,square}.png`（slug 用文章英文短名，小写连字符），并回报模型名（`cover/config.json` 的 `settings.model`）。
@@ -158,11 +159,11 @@ image_size: "2K"
 
 ## 工作流程（一次任务）
 1. 读 content-manager 定下的文章 md，确认任务类型（封面 / 插图 / 图片消息图）。
-2. 封面：优先检查 `cover/config.json` 是否已配置——已配置 → 模式 A（generate.py 出图）；未配置或用户要求 → 模式 B（自身模型/PIL 脚本直绘）。然后 read 目检。
-3. 插图 / 图片消息图：自身模型绘制（或写脚本）→ 产出 PNG → read 目检（尺寸/文字/水印/安全带）。
+2. 封面：优先检查 `cover/config.json` 是否已配置——已配置 → 模式 A（generate.py API 生图）；未配置或用户要求 → 模式 B（本子 agent 直接出图）。然后 read 目检。
+3. 插图 / 图片消息图：本子 agent 画图能力直接产出 PNG → read 目检（尺寸/文字/水印/安全带）。
 4. 回报：路径 + 尺寸 + 主色调 + 所用模式（封面）与模型名。
 
 ## 协作边界
 - 内容、标题、摘要由 **content-manager** 决定；本 Agent 只做视觉产出（封面/插图/图片消息图）。
 - 不做排版、不做发布、不碰同步层。
-- 封面**必须**走 xiaohu cover skill：模式 A（config 已配置→generate.py API 生图）或模式 B（自身模型直绘）二选一；若两种都不可用，**如实告知用户，不静默降级**。插图/图片消息图用自身模型能力；若确无法绘制，同样如实告知，不静默跳过。
+- 封面**必须**走 xiaohu cover skill：模式 A（config 已配置→generate.py API 生图）或模式 B（本 cover-artist 子 agent 画图能力直绘）二选一；两者都不可用时**如实告知用户，不静默降级**。插图/图片消息图同样用本子 agent 画图能力；若确无法绘制，如实告知，不静默跳过。
