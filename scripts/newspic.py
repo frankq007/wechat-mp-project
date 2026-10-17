@@ -147,6 +147,15 @@ def main():
 
     title = args.title or re.sub(r"\.[^.]+$", "", img.name)
 
+    if args.dry_run:
+        print(f"=== 1. access_token ===")
+        token = "<dry-run: 不发起真实请求>"
+        print(f"  ✓ [dry-run] 跳过网络（不取 token）")
+        print(f"  图片: {img}")
+        print(f"  标题: {title}")
+        print(f"\n[dry-run] 完成：跳过 token/上传/建草稿，零网络副作用")
+        return
+
     print(f"=== 1. access_token ===")
     token = get_access_token()
     print("  ✓ token 获取成功")
@@ -154,13 +163,6 @@ def main():
     print(f"=== 2. 转 RGB 临时副本 ===")
     tmp = to_rgb_copy(img)
     print(f"  ✓ {img.name} -> {tmp.name}")
-
-    if args.dry_run:
-        print(f"\n[dry-run] 跳过上传永久素材与创建草稿")
-        print(f"  图片: {img}")
-        print(f"  标题: {title}")
-        os.remove(tmp)
-        return
 
     print(f"=== 3. 上传永久素材 ===")
     media_id = upload_permanent_image(token, tmp)
