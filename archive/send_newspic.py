@@ -5,8 +5,14 @@ import os
 import sys
 import requests
 
-IMG_SRC = r"C:/Users/frankq/AppData/Local/hermes/images/clip_20260915_180202_1.png"
-TITLE = "newspic测试-截图1"
+IMG_SRC = ""  # 用法: python3 send_newspic.py <图片路径> [标题]
+TITLE = "newspic测试"
+import argparse
+import sys as _sys
+_ap = argparse.ArgumentParser()
+_ap.add_argument("image"); _ap.add_argument("-t","--title",default=TITLE)
+_av = _ap.parse_args()
+IMG_SRC, TITLE = _av.image, _av.title
 
 APP_ID = os.environ.get("WECHAT_APP_ID", "")
 APP_SECRET = os.environ.get("WECHAT_APP_SECRET", "")

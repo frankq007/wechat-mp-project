@@ -27,7 +27,7 @@ description: 公众号数据同步 Agent，负责把微信草稿箱/已发布文
 同步层是纯 stdlib Python，入口 `sync/cli.py`：
 
 ```bash
-cd /mnt/d/code/wechat-mp-project
+cd <本项目根目录>（存储库所在目录）
 
 python3 sync/cli.py init               # 建库建表
 python3 sync/cli.py index-articles     # 扫描 articles/*.md 写入元数据（跳过 _ 开头文件）

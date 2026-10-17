@@ -22,8 +22,16 @@ INK      = (26, 26, 26)      # 描边/正文黑 #1A1A1A
 DARKWIN  = (58, 63, 74)      # 窗口深灰 #3A3F4A
 YELLOW   = (245, 200, 76)    # 点缀黄 #F5C84C
 
-FONT = "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"
-OUT  = "/mnt/d/code/wechat-mp-project/images/covers"
+# 中文字体候选（Linux Noto/文泉驿、macOS PingFang 等，取第一个存在的）
+_CANDIDATES = [
+    "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/System/Library/Fonts/PingFang.ttc",
+]
+FONT = next((f for f in _CANDIDATES if os.path.exists(f)), _CANDIDATES[0])
+
+# 输出目录：相对于脚本所在项目根（可移植，勿写死机器路径）
+OUT = str(Path(__file__).resolve().parent.parent / "images" / "covers")
 
 def F(sz):  # 缓存字体
     if sz not in _FC:

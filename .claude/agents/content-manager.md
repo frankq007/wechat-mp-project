@@ -77,7 +77,7 @@ description: 公众号内容创作 Agent，负责撰写/排版/发布图文与�
 ### 图文消息
 
 ```bash
-cd /mnt/d/code/wechat-mp-project
+cd <本项目根目录>（存储库所在目录）
 python3 scripts/release.py news \
   --input "articles/xxx.md" \
   --cover "images/covers/xxx-cover.png" \

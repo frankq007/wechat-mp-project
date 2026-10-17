@@ -64,7 +64,7 @@ export WECHAT_APP_SECRET="..."   # 32 位
 
 config.json 均已在 `.gitignore` 中（不入库），clone 后需自行从 example 复制填写。
 
-**排版发布 skill**：`skill/xiaohu-wechat-format/`（原外部 `/mnt/d/code/wx/xiaohu-wechat-format` 已废弃），脚本经项目内相对路径调用。`config.json` 已配：`wechat.author = 小河`、`settings.default_theme = claude-scroll`；凭据字段写占位 `$WECHAT_APP_ID` / `$WECHAT_APP_SECRET`，由 `publish.py` / `sync/api.py` / `newspic.py` 统一解析（**环境变量优先**，其次展开 `$VAR`）。
+**排版发布 skill**：`skill/xiaohu-wechat-format/`（已从外部仓库迁入内置，外部副本废弃），脚本经项目内相对路径调用。`config.json` 已配：`wechat.author = 小河`、`settings.default_theme = claude-scroll`；凭据字段写占位 `$WECHAT_APP_ID` / `$WECHAT_APP_SECRET`，由 `publish.py` / `sync/api.py` / `newspic.py` 统一解析（**环境变量优先**，其次展开 `$VAR`）。
 
 **IP 白名单**：公众号后台需把当前出口 IP 加入白名单，否则 token 报 `40164`。
 

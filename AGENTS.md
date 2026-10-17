@@ -44,7 +44,7 @@ wechat-mp-project/
 └── data/wechat_mp.db          # SQLite：元数据 + 微信侧镜像（不存正文）
 ```
 
-**排版发布 skill 已内置**：`skill/xiaohu-wechat-format/`（原外部 `/mnt/d/code/wx/xiaohu-wechat-format`）。脚本经 `PROJECT/skill/...` 相对解析，排版/发布**必须复用它，不自研**。
+**排版发布 skill 已内置**：`skill/xiaohu-wechat-format/`（已从外部仓库迁入内置，外部副本废弃）。脚本经 `PROJECT/skill/...` 相对解析，排版/发布**必须复用它，不自研**。
 
 ## 铁律（所有 agent 必须遵守）
 
