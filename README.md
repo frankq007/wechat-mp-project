@@ -30,6 +30,8 @@ wechat-mp-project/
 ├── scripts/newspic.py       # 参数化图片消息发布（复用 config 凭据）
 ├── articles/                # md 源稿（正文真源）
 ├── images/                  # 封面/style 参照图
+├── skill/
+│   └── xiaohu-wechat-format/ # 排版发布 + 封面生图 skill（已内置）
 └── data/wechat_mp.db        # SQLite 库（首次运行生成）
 ```
 
@@ -40,15 +42,50 @@ wechat-mp-project/
 
 ## 前置配置
 
-1. **排版发布 skill** 已内置到本项目 `skill/xiaohu-wechat-format/`（原外部 `/mnt/d/code/wx/xiaohu-wechat-format` 已废弃），脚本经项目内相对路径调用。
-2. **凭据走环境变量**（不落明文密钥）：
-   ```bash
-   export WECHAT_APP_ID="wx..."
-   export WECHAT_APP_SECRET="..."   # 32 位
-   ```
-   该 skill 的 `config.json` 中 `wechat.app_secret` 写为占位 `$WECHAT_APP_SECRET`，由 `publish.py` / `sync/api.py` / `newspic.py` 统一解析（**环境变量优先**，其次展开 `$VAR`）。
-3. `config.json` 已配：`wechat.author = 小河`、`settings.default_theme = claude-scroll`。
-4. **IP 白名单**：公众号后台需把当前出口 IP 加入白名单，否则 token 报 `40164`。
+**clone 后首次初始化（三件事）：**
+
+```bash
+# 1. 排版/发布 skill 的 config（含主题/作者/图片搜索路径）
+cp skill/xiaohu-wechat-format/config.example.json \
+   skill/xiaohu-wechat-format/config.json
+
+# 2. 封面生图 skill 的 config（模型/网关/密钥都在这里）
+cp skill/xiaohu-wechat-format/cover/config.example.json \
+   skill/xiaohu-wechat-format/cover/config.json
+
+# 3. 微信凭据走环境变量（不落明文）
+export WECHAT_APP_ID="wx..."
+export WECHAT_APP_SECRET="..."   # 32 位
+```
+
+三个 config.json 均已在 `.gitignore` 中（不入库），clone 后需自行从 example 复制填写。
+
+**排版发布 skill**：`skill/xiaohu-wechat-format/`（原外部 `/mnt/d/code/wx/xiaohu-wechat-format` 已废弃），脚本经项目内相对路径调用。`config.json` 已配：`wechat.author = 小河`、`settings.default_theme = claude-scroll`；凭据字段写占位 `$WECHAT_APP_ID` / `$WECHAT_APP_SECRET`，由 `publish.py` / `sync/api.py` / `newspic.py` 统一解析（**环境变量优先**，其次展开 `$VAR`）。
+
+**IP 白名单**：公众号后台需把当前出口 IP 加入白名单，否则 token 报 `40164`。
+
+## 封面生图（cover-artist 子 agent 使用）
+
+封面由 `cover-artist` 子 agent 调**项目内 xiaohu 的 cover skill** 出图：
+
+```bash
+python3 skill/xiaohu-wechat-format/scripts/generate.py \
+  --config skill/xiaohu-wechat-format/cover/config.json \
+  --prompt-file <prompt.md> \
+  --out <输出.png>
+```
+
+**模型由 cover/config.json 指定**（换模型只改 config，不动代码）：
+
+| 键 | 说明 | 示例 |
+|---|---|---|
+| `settings.base_url` | 生图 API 网关（Gemini 兼容 REST） | `https://YOUR_PROVIDER_BASEURL/v1` |
+| `settings.model` | 生图模型 | `gemini-3-pro-image-preview` |
+| `secrets.api_key` | API 密钥 | 必填 |
+
+- 出三尺寸（master 1080×608 / cover 900×383 2.35:1 / square 500×500），按 `style-ref.png` 风格，水印「公众号·小河」。
+- 出图后 cover-artist 会逐张目检尺寸/构图/安全带/水印；不合格重出。
+- `cover/config.json` 不入库；未配置时 cover-artist 会如实报告，不降级。
 
 ## 发布流程（统一走 release.py，自动登记 DB）
 
@@ -110,4 +147,4 @@ python3 sync/cli.py db --sql "SELECT id,title,status FROM articles"
 |---|---|
 | `content-manager` | 选题/写作/排版/发布编排，含写作规则（搜索+传播优化） |
 | `data-sync` | 草稿箱/已发布 ↔ 本地 DB 双向同步、查询、差异/漂移核对 |
-| `cover-artist` | 用 opus 5.5 按风格参照图生成封面 |
+| `cover-artist` | 调项目内 xiaohu cover skill 出封面（三尺寸），模型由 cover/config.json 指定 |
