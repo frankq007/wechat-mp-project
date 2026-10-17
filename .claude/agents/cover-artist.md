@@ -19,8 +19,16 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 
 ---
 
-## 职能①：封面图（走 xiaohu Cover skill）
-走模式B，调用 cover-artist 子 agent 出图（无需任何 API 配置）。
+## 职能①：封面图（子 agent + xiaohu Cover skill 提示词 + 模式 B 首选）
+
+**默认流程（模式 B，首选）**：
+
+1. **拉起画图子 agent**（即本 cover-artist，自带画图能力，对应 paseo「画家」profile 的 claude-opus-5-5）。
+2. **使用 xiaohu cover skill 的提示词模板**：按 `skill/xiaohu-wechat-format/cover/SKILL.md` 的「封面图提示词模板」+「风格基准」+「三尺寸与构图」写 prompt.md（含 aspect_ratio：master=16:9 / cover=21:9 / square=1:1）。
+3. **用子 agent 自身的画图能力**按该 prompt 直接产出三张 PNG，**不调用 generate.py、不依赖 cover/config.json**。
+4. read 目检（标题/关键词高亮/吉祥物/四色框/水印「公众号·和弦代码」/安全带/文字不贴边），不合格重画。
+
+备选（模式 A，仅明确要求外部 API 生图时）：`skill/xiaohu-wechat-format/scripts/generate.py --config cover/config.json`，模型由 config 的 `settings.model` 指定。
 
 ---
 

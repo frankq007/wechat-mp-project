@@ -68,20 +68,18 @@ config.json 均已在 `.gitignore` 中（不入库），clone 后需自行从 ex
 
 cover-artist 有三个职能：**封面图 / 文章插图 / 图片消息插图**。
 
-- **封面图**：走项目内 xiaohu cover skill，支持两种模式：
-  - **模式 A（API 生图）**：
-    ```bash
-    python3 skill/xiaohu-wechat-format/scripts/generate.py \
-      --config skill/xiaohu-wechat-format/cover/config.json \
-      --prompt-file <prompt.md> \
-      --out <输出.png>
-    ```
-    模型由 `cover/config.json` 指定（`settings.base_url` / `settings.model` / `secrets.api_key`），换模型只改 config 不动代码。
-  - **模式 B（调用 cover-artist 子 agent 画图）**：无需 API 配置，由 cover-artist 子 agent（自带画图能力，如 paseo「画家」profile 的 claude-opus-5-5）按 style-ref 风格与三尺寸规范直接出图。
+- **封面图**：默认流程（模式 B）＝拉起 cover-artist 子 agent（自带画图能力）→ 使用 skill/xiaohu-wechat-format/cover/SKILL.md 的提示词模板/风格基准/三尺寸规范 → 子 agent 用自身画图能力直接出三张 PNG（无需 API 配置）。备选（模式 A，外部 API 生图）：
+  ```bash
+  python3 skill/xiaohu-wechat-format/scripts/generate.py \
+    --config skill/xiaohu-wechat-format/cover/config.json \
+    --prompt-file <prompt.md> \
+    --out <输出.png>
+  ```
+  模型由 `cover/config.json` 指定（`settings.base_url` / `settings.model` / `secrets.api_key`），换模型只改 config 不动代码。
   三尺寸：master 1080×608（16:9）/ cover 900×383（21:9，2.35:1 首图重排）/ square 500×500（1:1）；文字与关键图形落在中央垂直 60% 安全带内；水印「公众号·和弦代码」。
 - **文章插图**：cover-artist 子 agent 画图能力直接产出（数据图/示意图）→ `images/inline/<slug>-<n>.png`，md 用 `![[文件名.png]]` 引用。
 - **图片消息插图**：cover-artist 子 agent 画图能力产出海报感单张主图（900×500 等）→ `images/covers/<slug>-newspic.png`。
-- `cover/config.json` 不入库；模式 A 未配置时 cover-artist 用模式 B（子 agent 直接出图），或如实报告不可用，不降级。
+- `cover/config.json` 不入库；模式 B 为默认（子 agent 自绘 + skill 提示词），模式 A 仅在明确要求外部 API 生图时用；两者都不可用时 cover-artist 如实报告，不降级。
 
 ## 发布流程（统一走 release.py，自动登记 DB）
 
@@ -143,4 +141,4 @@ python3 sync/cli.py db --sql "SELECT id,title,status FROM articles"
 |---|---|
 | `content-manager` | 选题/写作/排版/发布编排，含写作规则（搜索+传播优化） |
 | `data-sync` | 草稿箱/已发布 ↔ 本地 DB 双向同步、查询、差异/漂移核对 |
-| `cover-artist` | 封面（xiaohu cover skill 出图，模式 A：config API / 模式 B：cover-artist 子 agent 画图）+ 文章插图 + 图片消息插图 |
+| `cover-artist` | 封面（默认模式 B：子 agent 自绘 + xiaohu cover skill 提示词；备选模式 A：config API）+ 文章插图 + 图片消息插图 |

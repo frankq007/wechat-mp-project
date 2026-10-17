@@ -7,10 +7,9 @@ description: "公众号封面图生成器。一步出图，输入文章路径或
 
 > **本项目内使用说明（wechat-mp-project）**
 > - 本 skill 已内置到项目 `skill/xiaohu-wechat-format/cover/`，被 `.claude/agents/cover-artist.md` 子 agent 调用于封面图产出。
-> - 支持**两种绘图模式**，见下「两种绘图模式」：
->   - **模式 A（API 生图）**：`generate.py --config cover/config.json`——模型由 `config.json` 的 `settings.model` 指定，`base_url`/`api_key` 亦取自同一文件，换模型只改 config 不动代码。
->   - **模式 B（调用 cover-artist 子 agent 画图）**：代理 cover-artist 子 agent（如 paseo「画家」profile 的 claude-opus-5-5，自带画图能力）按 style-ref 风格与三尺寸规范直接出图，无需填写任何 API config。
-> - 选择逻辑：`cover/config.json` 已配置好 → 优先模式 A；未配置或用户指定 → 模式 B，并在回报时如实说明用了哪种。
+> - **默认流程（模式 B，首选用法）**：拉起 cover-artist 子 agent（自带画图能力，如 paseo「画家」profile 的 claude-opus-5-5）→ **使用本 skill 的提示词模板**（「封面图提示词模板」+「风格基准」+「三尺寸与构图」）→ 由子 agent 用自己的画图能力直接产出三张 PNG。无需任何 API 配置。
+> - 备选（模式 A）：`generate.py --config cover/config.json`——模型由 `config.json` 的 `settings.model` 指定，`base_url`/`api_key` 亦取自同一文件，换模型只改 config 不动代码。仅当明确要求外部 API 生图时使用。
+> - 回报时注明所用模式与模型名；模式 B 即 cover-artist 子 agent 自身。
 > - `config.json` 不入库（已在 `.gitignore`），clone 后按 README「封面生成」从 `config.example.json` 复制填写。
 
 输入文章路径或主题，一步生成公众号封面图。
@@ -41,7 +40,7 @@ description: "公众号封面图生成器。一步出图，输入文章路径或
 
 ## 两种绘图模式
 
-### 模式 A：API 生图（config 指定模型，推荐）
+### 模式 A：API 生图（备选，仅明确要求外部 API 生图时用）
 
 走 `generate.py`，模型/网关/密钥由 `cover/config.json` 指定：
 
@@ -52,14 +51,14 @@ python3 <本仓库>/scripts/generate.py \
   --out <目标目录>/cover.png
 ```
 
-### 模式 B：调用 cover-artist 子 agent 出图（无需 key）
+### 模式 B：cover-artist 子 agent 自绘（**首选默认**，无需 key）
 
-代理 **cover-artist 子 agent**（自带画图能力，如 paseo「画家」profile `claude/claude-opus-5-5`）直接绘图，**不依赖 config.json**：
+1. **拉起画图子 agent**：代理 cover-artist 子 agent（自带画图能力，如 paseo「画家」profile `claude/claude-opus-5-5`，`paseo run --provider claude --model claude-opus-5-5 ...`），或本子 agent 自身即执行者。
+2. **使用本 skill 的提示词模板**：按「封面图提示词模板」写 prompt.md（含 aspect_ratio/风格基准/内容主题/安全区/水印），三尺寸分别 16:9 / 21:9 / 1:1。
+3. **子 agent 用自己的画图能力**按该 prompt 直接产出三张 PNG，**不调用 generate.py、不依赖 config.json**。
+4. 产出后按「路径约定」归档，且必须 read 目检（标题/高亮/水印/安全带），不合格重画。
 
-- 把「风格基准」+「三尺寸与构图」+「内容主题」整理成任务单，通过 paseo 调起 cover-artist 子 agent（`paseo run --provider claude --model claude-opus-5-5 ...`），由其用自己的画图能力产出三张 PNG。
-- cover-artist 子 agent 产出后按「路径约定」归档，且必须 read 目检（标题/高亮/水印/安全带），不合格重画。
-
-> 选择：`cover/config.json` 已填好 → 用模式 A；未配置或用户要求走子 agent 画图 → 模式 B，并在回报中注明所用模式与模型名。
+> 选择：**默认模式 B**（子 agent 自绘，同时使用 skill 提示词）；仅当明确要求外部 API 生图时才用模式 A。回报中注明所用模式与模型名。
 
 ## 路径约定
 
