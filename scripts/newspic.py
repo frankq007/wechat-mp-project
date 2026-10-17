@@ -43,6 +43,11 @@ AUTHOR = WECHAT.get("author", "小河")
 BASE = "https://api.weixin.qq.com/cgi-bin"
 
 # 凭据统一解析（环境变量优先；见 scripts/cred.py）
+import sys as _sys
+from pathlib import Path as _Path
+_PROJECT_ROOT = str(_Path(__file__).resolve().parent.parent)
+if _PROJECT_ROOT not in _sys.path:
+    _sys.path.insert(0, _PROJECT_ROOT)
 from scripts.cred import resolve_credential
 
 

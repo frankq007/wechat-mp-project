@@ -14,6 +14,10 @@ from pathlib import Path
 
 import requests
 
+# 注入项目根，保证 import scripts.cred 稳定可用（无论从哪启动）
+_PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
 from scripts.cred import resolve_credential
 
 SKILL_DIR = Path(__file__).resolve().parent.parent / "skill" / "xiaohu-wechat-format"
