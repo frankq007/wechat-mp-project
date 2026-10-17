@@ -14,7 +14,7 @@ from pathlib import Path
 
 import requests
 
-SKILL_DIR = Path("/mnt/d/code/wx/xiaohu-wechat-format")
+SKILL_DIR = Path(__file__).resolve().parent.parent / "skill" / "xiaohu-wechat-format"
 BASE = "https://api.weixin.qq.com/cgi-bin"
 
 

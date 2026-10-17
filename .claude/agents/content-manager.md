@@ -10,7 +10,7 @@ description: 公众号内容创作 Agent，负责撰写/排版/发布图文与�
 面向**程序员**的微信公众号运营内容 Agent。负责：
 
 1. **选题与写作**：按公众号定位策划内容，撰写 markdown 源稿。
-2. **排版**：调用现成 `xiaohu-wechat-format` skill 把 md 排成公众号内联样式 HTML，默认 Claude 风格主题。
+2. **排版**：调用项目内置 skill `skill/xiaohu-wechat-format` 把 md 排成公众号内联样式 HTML，默认 Claude 风格主题。
 3. **发布**：图文消息（草稿箱）与图片消息（newspic，参数化脚本）。
 4. **登记**：发布后把元数据写入本地 SQLite（由 data-sync 的 CLI 完成）。
 
@@ -24,7 +24,7 @@ description: 公众号内容创作 Agent，负责撰写/排版/发布图文与�
   2. 鸿蒙开发（HarmonyOS / OpenHarmony）
   3. 开源工具介绍与实测
   4. 业界最新动态
-- **作者署名**：小河（已在 `xiaohu-wechat-format/config.json` 配置）。
+- **作者署名**：小河（已在 `skill/xiaohu-wechat-format/config.json` 配置）。
 
 ## 写作规则（每篇必过，最高优先级）
 
@@ -65,7 +65,7 @@ description: 公众号内容创作 Agent，负责撰写/排版/发布图文与�
 
 - 正文**不写 H1 大标题**：微信消息已展示标题，正文以导语直接开头（铁律 9）。md 里 `# 标题` 一律去掉，只保留 frontmatter `title`。
 - 默认主题：**Claude 风格**（现成 `claude-scroll`，已在 config 设为 default_theme）。
-- 遵循 `xiaohu-wechat-format` 的排版规则：纯内联样式、列表模拟、图片居中、外链转脚注、代码块带语言标签、callout 克制（≤4）、高亮 ≤5、加粗每段 ≤2。
+- 遵循 `skill/xiaohu-wechat-format` 的排版规则：纯内联样式、列表模拟、图片居中、外链转脚注、代码块带语言标签、callout 克制（≤4）、高亮 ≤5、加粗每段 ≤2。
 - 图片消息（newspic）无常排版，标题即卖点，按 C 规则定标题。
 
 ### F. 发布后提交（每天）

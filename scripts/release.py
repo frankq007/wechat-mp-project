@@ -29,7 +29,7 @@ import sys
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
-XIAOHU_PUBLISH = Path("/mnt/d/code/wx/xiaohu-wechat-format/scripts/publish.py")
+XIAOHU_PUBLISH = PROJECT / "skill" / "xiaohu-wechat-format" / "scripts" / "publish.py"
 NEWSPIC = PROJECT / "scripts" / "newspic.py"
 
 # publish.py 输出 "草稿 media_id: xxx"；newspic.py 输出 "草稿 media_id = xxx"

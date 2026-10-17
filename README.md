@@ -40,7 +40,7 @@ wechat-mp-project/
 
 ## 前置配置
 
-1. **现成排版发布 skill** 位于 `/mnt/d/code/wx/xiaohu-wechat-format`（不在 `~/.claude/skills`，须按此绝对路径调用脚本）。
+1. **排版发布 skill** 已内置到本项目 `skill/xiaohu-wechat-format/`（原外部 `/mnt/d/code/wx/xiaohu-wechat-format` 已废弃），脚本经项目内相对路径调用。
 2. **凭据走环境变量**（不落明文密钥）：
    ```bash
    export WECHAT_APP_ID="wx..."
@@ -67,7 +67,7 @@ python3 scripts/release.py news --input x.md --cover c.png --no-register
 `release.py` 是极薄封装：内部调现成 skill 的 `publish.py`（图文）或本项目 `scripts/newspic.py`（图片），成功后解析 `media_id` 并写入 SQLite + 建立 `article_sync` 映射。
 
 - 均**只到草稿箱，不群发**，由人工在公众号后台择时发布。
-- 也可直接调底层脚本（`xiaohu-wechat-format/scripts/publish.py`、`scripts/newspic.py`），但那样不会自动登记 DB，需事后 `sync/cli.py pull` 补齐。
+- 也可直接调底层脚本（`skill/xiaohu-wechat-format/scripts/publish.py`、`scripts/newspic.py`），但那样不会自动登记 DB，需事后 `sync/cli.py pull` 补齐。
 
 ## 同步层 CLI 用法
 

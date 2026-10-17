@@ -28,8 +28,9 @@ from pathlib import Path
 
 import requests
 
-# 复用现成 skill 的 config.json（author 等）；凭据从环境变量解析
-SKILL_DIR = Path("/mnt/d/code/wx/xiaohu-wechat-format")
+# 复用本项目内 skill 的 config.json（author 等）；凭据从环境变量解析
+PROJECT = Path(__file__).resolve().parent.parent
+SKILL_DIR = PROJECT / "skill" / "xiaohu-wechat-format"
 CONFIG = json.load(open(SKILL_DIR / "config.json", encoding="utf-8"))
 WECHAT = CONFIG.get("wechat", {})
 
