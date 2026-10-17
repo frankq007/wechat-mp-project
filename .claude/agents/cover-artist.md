@@ -19,9 +19,9 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 
 ---
 
-## 职能①：封面图（走 xiaohu Cover skill）
+## 职能①：封面图（走 xiaohu Cover skill，支持两种模式）
 
-### 生图通道（唯一）
+### 模式 A：API 生图（config 指定模型，推荐）
 
 ```bash
 python3 skill/xiaohu-wechat-format/scripts/generate.py \
@@ -34,6 +34,16 @@ python3 skill/xiaohu-wechat-format/scripts/generate.py \
 - `aspect_ratio` 从 `prompt.md` 的 YAML 头部读取（三尺寸分别用 16:9 / 21:9 / 1:1，见下表）。
 - `--config` 缺省时 `generate.py` 会回退 `config.example.json`；但**正式产出前必须确认 config.json 已配置**（base_url/model/api_key 非占位），否则如实告知用户"封面生图未配置"，不静默换方式。
 - 凭据不入库：`cover/config.json` 已在 skill 的 `.gitignore` 忽略。
+
+### 模式 B：自身模型绘图（无需任何 API 配置）
+
+若 `cover/config.json` 未配置、或用户指定走自身模型：用自身模型能力直接绘制（PIL 脚本等），**不依赖 config**：
+
+- 参照 `images/style-ref.png` 风格基准 + 下方「三尺寸与构图」，用写脚本（如 `scripts/make_covers_hn.py` 样板）或直接绘图产出三张 PNG。
+- 样板 `scripts/make_covers_hn.py` 已交付（PIL 三尺寸 + 安全带自检，见 `images/covers/hn-ai-top5-*.png`），可复用几何布局/配色常量，或改参数套新稿。
+- 产出后 read 目检（标题/高亮/水印/安全带），不合格重画。
+
+**选择逻辑**：`cover/config.json` 已配好 → 模式 A；未配置或用户要求 → 模式 B。回报时必须注明所用模式与模型名。
 
 ### 三尺寸与构图
 
@@ -148,11 +158,11 @@ image_size: "2K"
 
 ## 工作流程（一次任务）
 1. 读 content-manager 定下的文章 md，确认任务类型（封面 / 插图 / 图片消息图）。
-2. 封面：先检查 `cover/config.json` 已配置（未配置→如实告知并停止，不降级）；三尺寸各写 prompt.md → `generate.py` 出图 → read 目检。
+2. 封面：优先检查 `cover/config.json` 是否已配置——已配置 → 模式 A（generate.py 出图）；未配置或用户要求 → 模式 B（自身模型/PIL 脚本直绘）。然后 read 目检。
 3. 插图 / 图片消息图：自身模型绘制（或写脚本）→ 产出 PNG → read 目检（尺寸/文字/水印/安全带）。
-4. 回报路径 + 尺寸 + 主色调。
+4. 回报：路径 + 尺寸 + 主色调 + 所用模式（封面）与模型名。
 
 ## 协作边界
 - 内容、标题、摘要由 **content-manager** 决定；本 Agent 只做视觉产出（封面/插图/图片消息图）。
 - 不做排版、不做发布、不碰同步层。
-- 封面**必须**走 xiaohu cover skill；若其 config 未配置或不可用，**如实告知用户，不静默降级**。插图/图片消息图用自身模型能力；若确无法绘制，同样如实告知，不静默跳过。
+- 封面**必须**走 xiaohu cover skill：模式 A（config 已配置→generate.py API 生图）或模式 B（自身模型直绘）二选一；若两种都不可用，**如实告知用户，不静默降级**。插图/图片消息图用自身模型能力；若确无法绘制，同样如实告知，不静默跳过。

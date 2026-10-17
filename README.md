@@ -68,17 +68,20 @@ config.json 均已在 `.gitignore` 中（不入库），clone 后需自行从 ex
 
 cover-artist 有三个职能：**封面图 / 文章插图 / 图片消息插图**。
 
-- **封面图**：走项目内 xiaohu cover skill（唯一生图通道）：
-  ```bash
-  python3 skill/xiaohu-wechat-format/scripts/generate.py \
-    --config skill/xiaohu-wechat-format/cover/config.json \
-    --prompt-file <prompt.md> \
-    --out <输出.png>
-  ```
-  **模型由 cover/config.json 指定**（`settings.base_url` / `settings.model` / `secrets.api_key`），换模型只改 config 不动代码。三尺寸：master 1080×608（16:9）/ cover 900×383（21:9，2.35:1 首图重排）/ square 500×500（1:1）；文字与关键图形落在中央垂直 60% 安全带内；水印「公众号·小河」。
+- **封面图**：走项目内 xiaohu cover skill，支持两种模式：
+  - **模式 A（API 生图）**：
+    ```bash
+    python3 skill/xiaohu-wechat-format/scripts/generate.py \
+      --config skill/xiaohu-wechat-format/cover/config.json \
+      --prompt-file <prompt.md> \
+      --out <输出.png>
+    ```
+    模型由 `cover/config.json` 指定（`settings.base_url` / `settings.model` / `secrets.api_key`），换模型只改 config 不动代码。
+  - **模式 B（自身模型绘图）**：无需 API 配置，cover-artist 用自己的模型能力直接绘制（PIL 脚本等），参考样板 `scripts/make_covers_hn.py`。
+  三尺寸：master 1080×608（16:9）/ cover 900×383（21:9，2.35:1 首图重排）/ square 500×500（1:1）；文字与关键图形落在中央垂直 60% 安全带内；水印「公众号·小河」。
 - **文章插图**：cover-artist 用自身模型绘制（如 PIL 数据图/示意图）→ `images/inline/<slug>-<n>.png`，md 用 `![[文件名.png]]` 引用。
 - **图片消息插图**：cover-artist 用自身模型绘制海报感单张主图（900×500 等）→ `images/covers/<slug>-newspic.png`。
-- `cover/config.json` 不入库；未配置时 cover-artist 会如实报告，不降级。
+- `cover/config.json` 不入库；模式 A 未配置时 cover-artist 会用模式 B（自身模型绘图），或如实报告不可用，不降级。
 
 ## 发布流程（统一走 release.py，自动登记 DB）
 
@@ -140,4 +143,4 @@ python3 sync/cli.py db --sql "SELECT id,title,status FROM articles"
 |---|---|
 | `content-manager` | 选题/写作/排版/发布编排，含写作规则（搜索+传播优化） |
 | `data-sync` | 草稿箱/已发布 ↔ 本地 DB 双向同步、查询、差异/漂移核对 |
-| `cover-artist` | 封面（xiaohu cover skill 出图）+ 文章插图 + 图片消息插图（插图用自身模型） |
+| `cover-artist` | 封面（xiaohu cover skill 出图，模式 A：config API / 模式 B：自身模型）+ 文章插图 + 图片消息插图（插图用自身模型） |

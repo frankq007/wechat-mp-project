@@ -5,13 +5,13 @@ description: "公众号封面图生成器。一步出图，输入文章路径或
 
 # 公众号封面图生成器
 
-# 公众号封面图生成器
-
 > **本项目内使用说明（wechat-mp-project）**
 > - 本 skill 已内置到项目 `skill/xiaohu-wechat-format/cover/`，被 `.claude/agents/cover-artist.md` 子 agent 调用于封面图产出。
-> - 执行：`python3 skill/xiaohu-wechat-format/scripts/generate.py --config skill/xiaohu-wechat-format/cover/config.json --prompt-file <p.md> --out <out.png>`。
-> - **模型由 `config.json` 的 `settings.model` 指定**（如 `gemini-3-pro-image-preview`）；`base_url`/`api_key` 亦取自同一文件。换模型只改 config，不动代码。
-> - `config.json` 不入库（已在 `.gitignore`），clone 后需按 README「封面生成」从 `config.example.json` 复制填写。
+> - 支持**两种绘图模式**，见下「两种绘图模式」：
+>   - **模式 A（API 生图）**：`generate.py --config cover/config.json`——模型由 `config.json` 的 `settings.model` 指定，`base_url`/`api_key` 亦取自同一文件，换模型只改 config 不动代码。
+>   - **模式 B（自身模型绘图）**：无需任何 API 配置，由 cover-artist 用自己的模型能力直接绘制（PIL 脚本等），参考样板 `scripts/make_covers_hn.py`。
+> - 选择逻辑：`cover/config.json` 已配置好 → 优先模式 A；未配置或用户指定 → 模式 B，并在回报时如实说明用了哪种。
+> - `config.json` 不入库（已在 `.gitignore`），clone 后按 README「封面生成」从 `config.example.json` 复制填写。
 
 输入文章路径或主题，一步生成公众号封面图。
 
@@ -31,11 +31,36 @@ description: "公众号封面图生成器。一步出图，输入文章路径或
 - `config.json`：真实配置（从 `config.example.json` 复制后填写）
 - `config.example.json`：示例配置
 
-执行前必须先读取 `config.json`，需要：
+**仅模式 A（API 生图）需要 config.json**，需配置：
 - `output_dir`：封面图输出根目录
 - `settings.base_url`：生图 API 地址（兼容 Gemini API 的第三方网关）
 - `settings.model`：模型名称（如 `gemini-3-pro-image-preview`）
 - `secrets.api_key`：API 密钥
+
+模式 B（自身模型绘图）不需要上述任何配置，cover-artist 用自己的模型能力直接画，以 PIL/绘图脚本方式产出 PNG。
+
+## 两种绘图模式
+
+### 模式 A：API 生图（config 指定模型，推荐）
+
+走 `generate.py`，模型/网关/密钥由 `cover/config.json` 指定：
+
+```bash
+python3 <本仓库>/scripts/generate.py \
+  --config <本技能目录>/cover/config.json \
+  --prompt-file <目标目录>/prompt.md \
+  --out <目标目录>/cover.png
+```
+
+### 模式 B：自身模型绘图（无需 key）
+
+cover-artist 用自己的模型能力直接绘制（PIL 脚本等），**不依赖 config.json**：
+
+- 参照《images/style-ref.png》风格基准 + `cover-artist.md` 的三尺寸/安全带/水印规范直接画。
+- 样板：`scripts/make_covers_hn.py`（PIL 三尺寸 + 安全带自检，产出 `images/covers/hn-ai-top5-*.png`），可复用布局/配色或改参数套新稿。
+- 产出后仍按「路径约定」归档，且必须 read 目检（标题/高亮/水印/安全带），不合格重画。
+
+> 选择：`cover/config.json` 已填好 → 用模式 A；未配置或用户要求走自身模型 → 模式 B，并在回报中注明所用模式与模型名。
 
 ## 路径约定
 
@@ -119,6 +144,8 @@ python3 <本仓库>/scripts/generate.py \
 
 > `<本仓库>` 和 `<本技能目录>` 请替换为你本地实际安装路径。如果你通过 `claude install` 安装，路径一般是 `<本项目>/skill/xiaohu-wechat-format/`。
 
+**模式 B（自身模型绘图）**：无需上述命令，cover-artist 用自己的模型能力直接绘制（参考 `scripts/make_covers_hn.py`），按同样的 prompt/风格基准与路径约定产出。
+
 生成完成后展示给用户预览。不满意就调整内容主题描述重新生成。
 
 ### 步骤 4：插入文章
@@ -133,6 +160,7 @@ python3 <本仓库>/scripts/generate.py \
 公众号封面已生成！
 
 主题: [主题]
+模式: [模式A-API生图 / 模式B-自身模型绘图]
 位置: [输出路径]
 
 如需调整，直接说"重新生成"。
