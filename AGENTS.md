@@ -35,7 +35,7 @@ wechat-mp-project/
 │   └── settings.json          # 权限：deny 群发接口
 ├── articles/                  # md 源稿（正文唯一真源）；_template.md 是写作模板
 ├── images/
-│   ├── style-ref.png          # 封面风格唯一真源（1080×608）
+│   ├── style-ref.png          # 封面风格参考之一（1080×608，非强制）
 │   └── covers/                # cover-artist 产出 <slug>-{master,cover,square}.png
 ├── scripts/
 │   ├── release.py             # 发布封装（图文/图片两条线，自动登记 DB）★首选入口
@@ -105,6 +105,7 @@ article_sync 映射：article_id ↔ media_id + local_hash/remote_hash + sync_at
 
 ## 封面规范速览（完整见 cover-artist.md）
 
-- 参照 `images/style-ref.png`：奶油底 + 顶部标题条（珊瑚红关键词）+ 中央机器人 + 四色环形流程框 + 底部标语 + 角落装饰（叠书/睡猫/云朵）+ 水印 `公众号·和弦代码`。
+- **风格自由创作**：不强制指定配色/版式/装饰，以"好看、醒目、和信息契合"为目标；`images/style-ref.png` 仅作灵感参考，不必对齐。
+- 功能底线：右下角水印 `公众号·和弦代码`、文字清晰可读、小尺寸预览醒目、cover/square 文字落在中央垂直 60% 安全区。
 - **产出三尺寸**：`-master`(1080×608 文内头图)、`-cover`(900×383 微信首图 2.35:1 **重排非裁切**)、`-square`(500×500 分享卡)。
 - 2.35:1 / 1:1 版本关键元素落在中央垂直 60% 安全带内。

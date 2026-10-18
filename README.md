@@ -72,7 +72,7 @@ config.json 均已在 `.gitignore` 中（不入库），clone 后需自行从 ex
 
 cover-artist 有三个职能：**封面图 / 文章插图 / 图片消息插图**。
 
-- **封面图**：默认流程（模式 B）＝拉起 cover-artist 子 agent（自带画图能力）→ 使用 skill/xiaohu-wechat-format/cover/SKILL.md 的提示词模板/风格基准/三尺寸规范 → 子 agent 用自身画图能力直接出三张 PNG（无需 API 配置）。备选（模式 A，外部 API 生图）：
+- **封面图**：默认流程（模式 B）＝拉起 cover-artist 子 agent（自带画图能力）→ 使用 skill/xiaohu-wechat-format/cover/SKILL.md 的提示词模板与三尺寸规范（**风格自由创作**，不强制套模板风格）→ 子 agent 用自身画图能力直接出三张 PNG（无需 API 配置）。备选（模式 A，外部 API 生图）：
   ```bash
   python3 skill/xiaohu-wechat-format/scripts/generate.py \
     --config skill/xiaohu-wechat-format/cover/config.json \
