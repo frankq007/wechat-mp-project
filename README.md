@@ -80,7 +80,7 @@ cover-artist 有三个职能：**封面图 / 文章插图 / 图片消息插图**
     --out <输出.png>
   ```
   模型由 `cover/config.json` 指定（`settings.base_url` / `settings.model` / `secrets.api_key`），换模型只改 config 不动代码。
-  三尺寸：master 1080×608（16:9）/ cover 900×383（21:9，2.35:1 首图重排）/ square 500×500（1:1）；文字与关键图形落在中央垂直 60% 安全带内；水印「公众号·和弦代码」。
+  三尺寸：master 1080×608（16:9）/ cover 900×383（21:9，2.35:1 首图重排）/ square 500×500（1:1）；文字与关键图形落在中央垂直 60% 安全带内；**不加公众号名水印**（微信自动加）；文字不互相覆盖；知名公司/产品用官方图标或写产品名，不自己画。
 - **文章插图**：cover-artist 子 agent 画图能力直接产出（数据图/示意图）→ `images/inline/<slug>-<n>.png`，md 用 `![[文件名.png]]` 引用。
 - **图片消息插图**：cover-artist 子 agent 画图能力产出海报感单张主图（900×500 等）→ `images/covers/<slug>-newspic.png`。
 - `cover/config.json` 不入库；模式 B 为默认（子 agent 自绘 + skill 提示词），模式 A 仅在明确要求外部 API 生图时用；两者都不可用时 cover-artist 如实报告，不降级。

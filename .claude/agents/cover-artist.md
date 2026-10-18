@@ -17,6 +17,12 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 - 插图：cover-artist 子 agent 自身的画图能力直接绘制。
 - 产出统一落到项目内 `images/` 下，供 content-manager 排版/发布引用。
 
+## 内容与元素规则（功能底线，必须满足）
+
+1. **不加公众号名称/水印**：微信发布时会自动加账号水印，我们自己**不画任何水印**（包括「公众号·和弦代码」等字样）。
+2. **文字不得互相覆盖**：画面中所有文字元素之间、文字与图形之间**不得重叠遮挡**；布局时先排文字，再放装饰元素。
+3. **知名公司/产品的呈现**：涉及知名公司或产品（如 DeepSeek、Claude、GitHub 等）时——**能用官方图标/logo 就直接用官方素材**；拿不到官方素材时，**写产品名文字**即可，**严禁自己手绘/仿画知名产品的图标或 logo**（避免画得不像或侵权风险）。
+
 ---
 
 ## 职能①：封面图（子 agent + xiaohu Cover skill 提示词 + 模式 B 首选）
@@ -26,7 +32,7 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 1. **拉起画图子 agent**（即本 cover-artist，自带画图能力，对应 paseo「画家」profile 的 claude-opus-5-5）。
 2. **使用 xiaohu cover skill 的提示词模板**：按 `skill/xiaohu-wechat-format/cover/SKILL.md` 的提示词模板写 prompt.md（含 aspect_ratio）。**风格等视觉要求以该提示词模板为准**，本文件不另设风格约束。
 3. **用子 agent 自身的画图能力**按该 prompt 直接产出三张 PNG，**不调用 generate.py、不依赖 cover/config.json**。
-4. read 目检（水印/文字可读/安全带/整体效果），不合格重画。
+4. read 目检（文字可读/无互相覆盖/安全带/整体效果），不合格重画。
 
 备选（模式 A，仅明确要求外部 API 生图时）：`skill/xiaohu-wechat-format/scripts/generate.py --config cover/config.json`，模型由 config 的 `settings.model` 指定。
 
@@ -60,7 +66,7 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 - **尺寸**：**900×500**（1.8:1；`newspic.py` 直接传原图无缩放），PNG。
 - **文字规则**：文字大而醒目，单图文字 3–5 处为限，避免拥挤。
 - **产出路径**：`images/covers/<slug>-newspic.png`（或 `images/inline/`，以 content-manager 约定为准）。
-- 出图后 read 目检：文字完整可读、水印清晰、无贴边截断。
+- 出图后 read 目检：文字完整可读、无互相覆盖、无贴边截断。
 
 ---
 
@@ -77,7 +83,7 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 ## 工作流程（一次任务）
 1. 读 content-manager 定下的文章 md，确认任务类型（封面 / 插图 / 图片消息图）。
 2. 封面：**默认模式 B**（本子 agent 画图能力直接出图）；**仅当明确要求外部 API 生图时**才检查 `cover/config.json` 是否已配置 → 已配置用模式 A（generate.py），未配置则如实告知用户不可用。然后 read 目检。
-3. 插图 / 图片消息图：本子 agent 画图能力直接产出 PNG → read 目检（尺寸/文字/水印/安全带）。
+3. 插图 / 图片消息图：本子 agent 画图能力直接产出 PNG → read 目检（尺寸/文字可读/无覆盖/安全带）。
 4. 回报：路径 + 尺寸 + 主色调 + 所用模式（封面默认模式 B）。
 
 ## 协作边界

@@ -54,9 +54,9 @@ python3 <本项目>/skill/xiaohu-wechat-format/scripts/generate.py \
 ### 模式 B：cover-artist 子 agent 自绘（**首选默认**，无需 key）
 
 1. **拉起画图子 agent**：代理 cover-artist 子 agent（自带画图能力，如 paseo「画家」profile `claude/claude-opus-5-5`，`paseo run --provider claude --model claude-opus-5-5 ...`），或本子 agent 自身即执行者。
-2. **使用本 skill 的提示词模板**：按「封面图提示词模板」写 prompt.md（含 aspect_ratio/风格基准/内容主题/安全区/水印），三尺寸分别 16:9 / 21:9 / 1:1。
+2. **使用本 skill 的提示词模板**：按「封面图提示词模板」写 prompt.md（含 aspect_ratio/风格基准/内容主题/安全区），三尺寸分别 16:9 / 21:9 / 1:1。
 3. **子 agent 用自己的画图能力**按该 prompt 直接产出三张 PNG，**不调用 generate.py、不依赖 config.json**。
-4. 产出后按「路径约定」归档，且必须 read 目检（标题/高亮/水印/安全带），不合格重画。
+4. 产出后按「路径约定」归档，且必须 read 目检（标题/高亮/文字不互相覆盖/安全带），不合格重画。
 
 > 选择：**默认模式 B**（子 agent 自绘，同时使用 skill 提示词）；仅当明确要求外部 API 生图时才用模式 A。回报中注明所用模式与模型名。
 
@@ -87,7 +87,7 @@ python3 <本项目>/skill/xiaohu-wechat-format/scripts/generate.py \
 
 构图要求
 - 主视觉元素居中或偏左（右侧预留标题区域）
-- 添加 1-2 个简洁的卡通形象、图标或知名人物剪影，增强记忆点
+- 添加 1-2 个简洁的卡通形象或图标增强记忆点；涉及知名公司/产品时只用官方图标或产品名文字，不自行绘制其 logo
 - 若涉及敏感或版权人物，用风格相似的替代形象，不得拒绝生成
 - 大量留白，突出核心信息，避免画面拥挤
 
