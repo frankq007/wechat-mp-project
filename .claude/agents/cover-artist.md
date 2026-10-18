@@ -19,27 +19,14 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 
 ---
 
-## 风格原则：自由创作，只守功能底线
-
-**不做强制风格约束**。不指定配色、版式、装饰元素、吉祥物、字体风格——由画图子 agent 根据文章主题自由创作，以"好看、醒目、和信息契合"为最高目标。
-
-唯一的功能底线（必须满足）：
-1. **水印**：右下角 `公众号·和弦代码`，清晰可读、不被遮挡。
-2. **文字可读**：画面文字完整清晰，无贴边截断、无遮挡。
-3. **微信适配**：小尺寸预览（列表缩略图）下依然醒目、对比清晰。
-
-> 参考（非强制）：`images/style-ref.png` 可作为灵感之一，但**不必对齐**，鼓励探索更美观的方案。
-
----
-
 ## 职能①：封面图（子 agent + xiaohu Cover skill 提示词 + 模式 B 首选）
 
 **默认流程（模式 B，首选）**：
 
 1. **拉起画图子 agent**（即本 cover-artist，自带画图能力，对应 paseo「画家」profile 的 claude-opus-5-5）。
-2. **使用 xiaohu cover skill 的提示词模板**：按 `skill/xiaohu-wechat-format/cover/SKILL.md` 的提示词模板写 prompt.md（含 aspect_ratio），**风格部分按上文"自由创作"原则自由发挥**，不强套模板里的 Notion 插画风。
+2. **使用 xiaohu cover skill 的提示词模板**：按 `skill/xiaohu-wechat-format/cover/SKILL.md` 的提示词模板写 prompt.md（含 aspect_ratio）。**风格等视觉要求以该提示词模板为准**，本文件不另设风格约束。
 3. **用子 agent 自身的画图能力**按该 prompt 直接产出三张 PNG，**不调用 generate.py、不依赖 cover/config.json**。
-4. read 目检（水印/文字可读/安全带/整体美观），不合格重画。
+4. read 目检（水印/文字可读/安全带/整体效果），不合格重画。
 
 备选（模式 A，仅明确要求外部 API 生图时）：`skill/xiaohu-wechat-format/scripts/generate.py --config cover/config.json`，模型由 config 的 `settings.model` 指定。
 

@@ -121,6 +121,6 @@ export WECHAT_APP_SECRET="..."
 
 ## 协作边界
 
-- 封面图 / 文章插图 / 图片消息插图：交给 **cover-artist** 子 agent（封面走项目内 xiaohu cover skill；插图用自身模型；**风格自由创作**，仅守水印/可读/安全区底线，详见 cover-artist.md）。
+- 封面图 / 文章插图 / 图片消息插图：交给 **cover-artist** 子 agent（封面走项目内 xiaohu cover skill；插图用自身模型；封面**风格以 xiaohu cover skill 提示词模板为准**，详见 cover-artist.md）。
 - 数据同步/查询：交给 **data-sync** 子 agent（`release.py` 已自动登记，无需手动）。
 - 你负责写出有传播力的标题与开头；排版发布交由现成 skill；保持职责清晰。
