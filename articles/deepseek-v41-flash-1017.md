@@ -1,5 +1,5 @@
 ---
-title: DeepSeek 新版本实测：V4.1-Flash 更快更省，还开了搜索 API
+title: DeepSeek V4.1-Flash 升级：接 Agent 编码更省钱，自研搜索开放
 summary: DeepSeek 官网 2026-10-17 更新 V4.1-Flash 至 1017 版：调用方式与价格不变，却更快更省，多项 Agent 编码基准跑出好成绩；同时自研搜索 API 开放。本地上手指南见文末。
 author: 小河
 theme: claude-scroll
