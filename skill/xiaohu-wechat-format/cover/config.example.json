@@ -1,5 +1,5 @@
 {
-  "output_dir": "~/Documents/covers",
+  "output_dir": "./images/covers",
   "settings": {
     "base_url": "https://YOUR_PROVIDER_BASEURL/v1",
     "model": "gemini-3-pro-image-preview"

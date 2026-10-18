@@ -113,10 +113,22 @@ def save_state(state):
 
 
 def get_access_token(wechat_config):
+    # 凭据环境变量优先 + $VAR 占位展开（与项目 scripts/cred.py 逻辑一致）
+    import sys as _sys
+    from pathlib import Path as _Path
+    _base = _Path(__file__).resolve().parent
+    _project_root = next((p for p in (_base, *_base.parents) if (p / "scripts" / "cred.py").exists()), _base)
+    if str(_project_root) not in _sys.path:
+        _sys.path.insert(0, str(_project_root))
+    from scripts.cred import resolve_credential
+    appid = resolve_credential(wechat_config.get("app_id"), "WECHAT_APP_ID")
+    secret = resolve_credential(wechat_config.get("app_secret"), "WECHAT_APP_SECRET")
+    if not appid or not secret:
+        raise Exception("未取到微信凭据：请设置环境变量 WECHAT_APP_ID / WECHAT_APP_SECRET")
     resp = requests.get("https://api.weixin.qq.com/cgi-bin/token", params={
         "grant_type": "client_credential",
-        "appid": wechat_config["app_id"],
-        "secret": wechat_config["app_secret"]
+        "appid": appid,
+        "secret": secret
     }).json()
     if "access_token" not in resp:
         raise Exception(f"Token 获取失败: {resp}")
@@ -124,7 +136,11 @@ def get_access_token(wechat_config):
 
 
 def get_published_articles(token, count=10):
-    """获取已发布文章列表"""
+    """获取已发布文章列表。
+
+    注：个人订阅号未授权"发布能力"（freepublish/batchget 返回 48001），
+    该方法会失败属平台限制而非代码缺陷；如需已发布数据请走 sync/cli.py mark-published 人工登记。
+    """
     resp = requests.post(
         f"https://api.weixin.qq.com/cgi-bin/freepublish/batchget?access_token={token}",
         json={"offset": 0, "count": count}

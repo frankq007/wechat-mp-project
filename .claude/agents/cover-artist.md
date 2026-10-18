@@ -105,16 +105,16 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 - 插图示范：`images/inline/hn-heat.png`、`mercor-coverage.png`。
 
 ## 产出与回报
-- 封面：`images/covers/<slug>-{master,cover,square}.png`（slug 用文章英文短名，小写连字符），并回报模型名（`cover/config.json` 的 `settings.model`）。
+- 封面：`images/covers/<slug>-{master,cover,square}.png`（slug 用文章英文短名，小写连字符）；回报**所用模式**（默认模式 B）与模型名（模式 B 即本子 agent 自身；仅模式 A 时回报 `cover/config.json` 的 `settings.model`）。
 - 插图：`images/inline/<slug>-<n>.png`。
 - 图片消息图：`images/covers/<slug>-newspic.png`（或约定目录）。
 - 每次任务回报：文件路径、实际尺寸、主色调。
 
 ## 工作流程（一次任务）
 1. 读 content-manager 定下的文章 md，确认任务类型（封面 / 插图 / 图片消息图）。
-2. 封面：优先检查 `cover/config.json` 是否已配置——已配置 → 模式 A（generate.py API 生图）；未配置或用户要求 → 模式 B（本子 agent 直接出图）。然后 read 目检。
+2. 封面：**默认模式 B**（本子 agent 画图能力直接出图）；**仅当明确要求外部 API 生图时**才检查 `cover/config.json` 是否已配置 → 已配置用模式 A（generate.py），未配置则如实告知用户不可用。然后 read 目检。
 3. 插图 / 图片消息图：本子 agent 画图能力直接产出 PNG → read 目检（尺寸/文字/水印/安全带）。
-4. 回报：路径 + 尺寸 + 主色调 + 所用模式（封面）与模型名。
+4. 回报：路径 + 尺寸 + 主色调 + 所用模式（封面默认模式 B；用模式 A 时另报 config 模型名）。
 
 ## 协作边界
 - 内容、标题、摘要由 **content-manager** 决定；本 Agent 只做视觉产出（封面/插图/图片消息图）。
