@@ -19,7 +19,7 @@
 | Agent | 定义文件 | 负责 | 绝不碰 |
 |---|---|---|---|
 | `content-manager` | `.claude/agents/content-manager.md` | 选题、写 md、配标题/摘要、编排发布 | 数据库、生图 |
-| `cover-artist` | `.claude/agents/cover-artist.md` | 封面（xiaohu cover skill 出图）+ 文章插图 + 图片消息插图 | 写作、排版、发布、同步 |
+| `cover-artist` | `.claude/agents/cover-artist.md` | 封面（模式 B 自绘默认 / 模式 A baoyu-image-gen）+ 插图（首选 baoyu-article-illustrator）+ 图片消息插图 | 写作、排版、发布、同步 |
 | `data-sync` | `.claude/agents/data-sync.md` | 草稿箱/已发布 ↔ SQLite 同步、查询、差异核对 | 写作、排版、发布 |
 
 协作链：**content-manager 写稿 → cover-artist 出封面 → release.py 发布并自动登记 → data-sync 核对**。
@@ -105,7 +105,8 @@ article_sync 映射：article_id ↔ media_id + local_hash/remote_hash + sync_at
 
 ## 封面规范速览（完整见 cover-artist.md）
 
-- **风格由 xiaohu cover skill 的提示词模板约束**（cover-artist.md 自身不设风格约束）；插图风格自由。
+- **风格由 xiaohu cover skill 的提示词模板约束**（cover-artist.md 自身不设风格约束）；插图走 baoyu-article-illustrator 的 Type×Style×Palette 三维体系。
+- **生图后端**：`baoyu-image-gen`（项目级 `.baoyu-skills/baoyu-image-gen/EXTEND.md`，默认 dashscope/qwen-image，凭据走 `DASHSCOPE_API_KEY` 环境变量不落盘）。
 - 功能底线：**不加公众号名水印**（微信自动加）；文字清晰可读、**不得互相覆盖**；知名公司/产品用官方图标或直接写产品名（不自己画）；小尺寸预览醒目；cover/square 文字落在中央垂直 60% 安全区。
 - **产出三尺寸**：`-master`(1080×608 文内头图)、`-cover`(900×383 微信首图 2.35:1 **重排非裁切**)、`-square`(500×500 分享卡)。
 - 2.35:1 / 1:1 版本关键元素落在中央垂直 60% 安全带内。

@@ -10,7 +10,7 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 | 职能 | 内容 | 生产方式 |
 |---|---|---|
 | ① 封面图 | 文章封面三尺寸（master/cover/square） | **xiaohu cover skill**（`skill/xiaohu-wechat-format/`） |
-| ② 文章插图 | 正文配图（数据图/示意图/流程说明等） | 自身画图能力（cover-artist 子 agent） |
+| ② 文章插图 | 正文配图（数据图/示意图/流程说明等） | **首选 baoyu-article-illustrator**（自动配图），备选自身画图能力 |
 | ③ 图片消息插图 | newspic（微信图片消息）用图 | 自身画图能力（cover-artist 子 agent） |
 
 - 封面：**默认模式 B**（本子 agent 画图能力 + xiaohu cover skill 提示词），模式 A（外部 API 生图）仅备选；详职①。
@@ -34,7 +34,15 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 3. **用子 agent 自身的画图能力**按该 prompt 直接产出三张 PNG，**不调用 generate.py、不依赖 cover/config.json**。
 4. read 目检（文字可读/无互相覆盖/安全带/整体效果），不合格重画。
 
-备选（模式 A，仅明确要求外部 API 生图时）：`skill/xiaohu-wechat-format/scripts/generate.py --config cover/config.json`，模型由 config 的 `settings.model` 指定。
+备选（模式 A，仅明确要求外部 API 生图时）：**优先 `baoyu-image-gen`**（多后端生图 skill，项目级配置 `.baoyu-skills/baoyu-image-gen/EXTEND.md`，默认 provider=dashscope/qwen-image；凭据走 `DASHSCOPE_API_KEY` 环境变量）：
+
+```bash
+# 三尺寸示例（prompt 用 cover skill 提示词模板写好，aspect_ratio 分别 16:9/21:9/1:1）
+npx -y bun ~/.agents/skills/baoyu-image-gen/scripts/main.ts \
+  --promptfile images/covers/<slug>.prompt.md --image images/covers/<slug>-master.png --ar 16:9 --quality 2k
+```
+
+兜底：`skill/xiaohu-wechat-format/scripts/generate.py --config cover/config.json`（Gemini 网关，`cover/config.json` 指定模型，`enabled` 需为 true）。
 
 ### 三尺寸与构图（功能要求，必须满足）
 
@@ -49,14 +57,20 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 
 ---
 
-## 职能②：文章正文插图（cover-artist 子 agent 画图）
+## 职能②：文章正文插图（首选 baoyu-article-illustrator，备选自绘）
 
-正文配图由本子 agent 画图能力直接产出（数据图/示意图/流程说明等），要点：
+**首选通道：`baoyu-article-illustrator`**（已安装于 `~/.agents/skills/`）——分析文章结构、自动定位需要配图的位置，按 **Type × Style × Palette** 三维生成插图：
 
-- **类型**：数据条形图、示意图、流程说明、对比表等，能"一图说清"的优先做图，风格自由。
-- **尺寸**：建议宽度 **1080px**，高度自适应，PNG。
-- **产出路径**：`images/inline/<slug>-<n>.png`。
-- **插入文章**：md 里用 wikilink `![[<slug>-<n>.png]]`（`image_search_paths` 已含 `./images`），图说用紧随其后的斜体行。
+- 调用方式：对文章 md 运行该 skill（如 "为 articles/<slug>.md 配图"），它会分析结构→给出配图位置建议（需确认）→逐图写 prompt 文件（`prompts/NN-{type}-[slug].md`）→调生图后端出图。
+- 生图后端自动解析：runtime 原生 imagegen > codex-cli > **baoyu-image-gen**（本项目已配 EXTEND.md：dashscope/qwen-image）> 询问用户。
+- 产出图移入/存到 `images/inline/<slug>-<n>.png`，md 用 wikilink `![[<slug>-<n>.png]]` 引用（`image_search_paths` 已含 `./images`），图说用紧随斜体行。
+- 该 skill 的两条硬规则必须遵守：**禁止用 SVG/HTML/代码渲染替代位图生成**；**禁止程序化修补已生成图上的文字**（文字错了就换 prompt 重生成）。
+- 本项目叠加约束：不加公众号水印（微信自动加）、文字不互相覆盖、知名产品只用官方图标或产品名文字。
+
+**备选通道：子 agent 自绘**——适合数据条形图、流程示意、对比表等"精确信息图"（article-illustrator 的 AI 生图不适合需要精确数字对齐的图表）：
+
+- 尺寸：建议宽 **1080px**，高自适应，PNG。
+- 产出路径：`images/inline/<slug>-<n>.png`，引用方式同上。
 
 ## 职能③：微信图片消息（newspic）插图（cover-artist 子 agent 画图）
 
@@ -83,10 +97,10 @@ description: 公众号视觉 Agent：①封面图（三尺寸，用 xiaohu cover
 ## 工作流程（一次任务）
 1. 读 content-manager 定下的文章 md，确认任务类型（封面 / 插图 / 图片消息图）。
 2. 封面：**默认模式 B**（本子 agent 画图能力直接出图）；**仅当明确要求外部 API 生图时**才检查 `cover/config.json` 是否已配置 → 已配置用模式 A（generate.py），未配置则如实告知用户不可用。然后 read 目检。
-3. 插图 / 图片消息图：本子 agent 画图能力直接产出 PNG → read 目检（尺寸/文字可读/无覆盖/安全带）。
+3. 插图 / 图片消息图：**插图优先走 `baoyu-article-illustrator`**（分析→确认→出图）；精确数据图表用本子 agent 自绘；图片消息图用本子 agent 画图能力或 baoyu-image-gen。产出后 read 目检（尺寸/文字可读/无覆盖/安全区）。
 4. 回报：路径 + 尺寸 + 主色调 + 所用模式（封面默认模式 B）。
 
 ## 协作边界
 - 内容、标题、摘要由 **content-manager** 决定；本 Agent 只做视觉产出（封面/插图/图片消息图）。
 - 不做排版、不做发布、不碰同步层。
-- 封面走 xiaohu cover skill：模式 A（config 已配置→generate.py API 生图）或模式 B（本 cover-artist 子 agent 画图能力直绘）二选一；两者都不可用时**如实告知用户，不静默降级**。插图/图片消息图同样用本子 agent 画图能力；若确无法绘制，如实告知，不静默跳过。
+- 封面走 xiaohu cover skill：模式 A（baoyu-image-gen 优先 / generate.py 兜底）或模式 B（本 cover-artist 子 agent 画图能力直绘）二选一；两者都不可用时**如实告知用户，不静默降级**。插图优先 baoyu-article-illustrator、精确图表自绘；若确无法绘制，如实告知，不静默跳过。
